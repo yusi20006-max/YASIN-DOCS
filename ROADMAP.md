@@ -60,15 +60,21 @@
 - [x] Deployment capability graph
 - [x] Graph confidence rules
 
-### Graph refinement — NEXT
-- [ ] Import-level dependency graph
-- [ ] Public API producer/consumer graph
-- [ ] Storage ownership graph
-- [ ] Configuration/secrets ownership graph
-- [ ] Runtime process/service graph
-- [ ] Event/message transport graph
-- [ ] Deployment topology
-- [ ] Security trust boundaries
+### Graph refinement — IN PROGRESS
+- [x] Dependency/contract graph initial refinement
+- [x] API producer/consumer evidence model
+- [x] Storage ownership evidence model
+- [x] Configuration ownership evidence model
+- [x] Runtime process classification
+- [x] Event/message evidence rules
+- [x] Security trust-boundary baseline
+- [ ] Complete import-level dependency graph
+- [ ] Complete symbol-level public API graph
+- [ ] Verify all storage owners and schemas
+- [ ] Verify configuration/secrets ownership
+- [ ] Verify runtime process/service topology
+- [ ] Verify event/message transport and payloads
+- [ ] Verify deployment topology
 
 ## Phase 7 — AI Handoff System
 Create documentation specifically designed to let a new AI coding agent understand the ecosystem and safely continue work.
