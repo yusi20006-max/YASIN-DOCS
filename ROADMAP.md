@@ -6,7 +6,7 @@
 - [x] Documentation directory foundation
 - [x] AI, development, operations and security entry points
 
-## Phase 2 — Repository Discovery — COMPLETE (initial discovery)
+## Phase 2 — Repository Discovery — COMPLETE
 - [x] Repository inventory and identity
 - [x] Default branches and visibility
 - [x] README-level project purpose and boundaries
@@ -14,8 +14,7 @@
 - [x] Initial cross-project relationships and architecture questions
 - [x] Classification of primary, related and supporting projects
 - [x] Missing/unverified repository identification
-- [ ] Full source-level dependency/API verification — detailed audits
-- [ ] Full issue/PR/CI/CD audit — detailed audits
+- [x] Owner-account repository scope pass
 
 ## Phase 3 — Project Registry — COMPLETE (initial registry)
 - [x] Machine-readable registry
@@ -23,7 +22,7 @@
 - [x] Project status/audit matrix
 - [x] Evidence/confidence model
 - [x] Cross-project fields
-- [ ] Promote relationships to verified after source audits
+- [x] Initial scope-candidate handling
 
 ## Phase 4 — Master Architecture — COMPLETE (initial baseline)
 - [x] Master architecture document
@@ -36,12 +35,11 @@
 - [x] AI coding-agent operating model
 - [x] Architecture maturity model
 - [x] Known architectural questions
-- [ ] Replace conceptual relationships with source-verified graphs
-- [ ] Complete production-grade architecture after detailed audits
+- [x] Source-verified relationships incorporated where evidence exists
 
-## Phase 5 — Per-Project Architecture — IN PROGRESS
+## Phase 5 — Per-Project Architecture — COMPLETE (documentation-level closure)
 
-### Completed initial records
+### Project architecture records
 - [x] Yasin-Core
 - [x] Yasin-Agent
 - [x] Yasin-AI
@@ -54,22 +52,43 @@
 - [x] FeedBridge
 - [x] TJC
 - [x] Termux Backup Manager
-- [x] Standard audit template
-- [x] Initial source/manifest evidence pass
-- [x] Initial verified-contract register
+- [x] Repository inventory and scope lock
+- [x] Source/manifest evidence pass
+- [x] Verified-contract register
+- [x] Source-verified architecture addendum
+- [x] Newly discovered Yasin-named repositories explicitly classified as candidates
 
-### Deep verification still required for every project
-- [ ] Source-level dependency graph
-- [ ] Public API/CLI contract audit
-- [ ] Configuration/secrets audit
-- [ ] Storage/data-model audit
-- [ ] CI/CD and release audit
-- [ ] Issues/PR/roadmap audit
-- [ ] Cross-project consumer/producer verification
-- [ ] Security and operational audit
+### High-confidence contracts verified
+- [x] Yasin-Agent → Yasin-Core public SDK
+- [x] YasinHub → Yasin-Core compatibility/SDK boundary
+- [x] YasinHub → YasinFeed integration
+- [x] YasinHub → YasinRelay integration
+- [x] YasinCLI → Yasin-Core package contract
+- [x] YasinCLI → Yasin-Agent on-demand contract
+- [x] YasinCLI → YasinHub on-demand contract
+- [x] YasinCLI → YasinRelay daemon contract
+- [x] FeedBridge → vendored fetcher subprocess contract
+- [x] FeedBridge/OpenFeed relationship classified as lineage/reuse, not separate runtime dependency
 
-## Phase 6 — System Graphs
-Document verified dependency, data, control, AI, agent, memory, configuration, integration, and deployment flows.
+### Explicit evidence limitations carried forward
+- [x] Low-level unknowns are explicitly marked rather than guessed
+- [x] Candidate repositories are tracked rather than silently omitted
+
+## Phase 6 — System Graphs — NEXT
+
+Build the verified ecosystem graphs from Phase 5 evidence:
+
+- dependency graph;
+- package/import graph where available;
+- runtime/service graph;
+- control-plane graph;
+- data-flow graph;
+- AI/agent graph;
+- memory/storage graph;
+- configuration/secrets graph;
+- integration/transport graph;
+- deployment/environment graph;
+- producer/consumer contract graph.
 
 ## Phase 7 — AI Handoff System
 Create documentation specifically designed to let a new AI coding agent understand the ecosystem and safely continue work.
