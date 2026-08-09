@@ -37,58 +37,38 @@
 - [x] Known architectural questions
 - [x] Source-verified relationships incorporated where evidence exists
 
-## Phase 5 — Per-Project Architecture — COMPLETE (documentation-level closure)
-
-### Project architecture records
-- [x] Yasin-Core
-- [x] Yasin-Agent
-- [x] Yasin-AI
-- [x] YasinHub
-- [x] YasinRelay
-- [x] YasinFeed
-- [x] YasinPress
-- [x] YasinCLI
-- [x] OpenFeed
-- [x] FeedBridge
-- [x] TJC
-- [x] Termux Backup Manager
+## Phase 5 — Per-Project Architecture — COMPLETE
+- [x] Project architecture records for all scoped projects
 - [x] Repository inventory and scope lock
 - [x] Source/manifest evidence pass
 - [x] Verified-contract register
 - [x] Source-verified architecture addendum
-- [x] Newly discovered Yasin-named repositories explicitly classified as candidates
+- [x] Explicit evidence limitations and candidate handling
+- [x] High-confidence cross-project contracts documented
 
-### High-confidence contracts verified
-- [x] Yasin-Agent → Yasin-Core public SDK
-- [x] YasinHub → Yasin-Core compatibility/SDK boundary
-- [x] YasinHub → YasinFeed integration
-- [x] YasinHub → YasinRelay integration
-- [x] YasinCLI → Yasin-Core package contract
-- [x] YasinCLI → Yasin-Agent on-demand contract
-- [x] YasinCLI → YasinHub on-demand contract
-- [x] YasinCLI → YasinRelay daemon contract
-- [x] FeedBridge → vendored fetcher subprocess contract
-- [x] FeedBridge/OpenFeed relationship classified as lineage/reuse, not separate runtime dependency
+## Phase 6 — System Graphs — IN PROGRESS
 
-### Explicit evidence limitations carried forward
-- [x] Low-level unknowns are explicitly marked rather than guessed
-- [x] Candidate repositories are tracked rather than silently omitted
+### Initial graph baseline — COMPLETE
+- [x] Ecosystem control graph
+- [x] Agent graph
+- [x] Content/feed graph
+- [x] Relay graph
+- [x] AI capability graph
+- [x] Management graph
+- [x] Supporting infrastructure graph
+- [x] Memory/knowledge capability graph
+- [x] Deployment capability graph
+- [x] Graph confidence rules
 
-## Phase 6 — System Graphs — NEXT
-
-Build the verified ecosystem graphs from Phase 5 evidence:
-
-- dependency graph;
-- package/import graph where available;
-- runtime/service graph;
-- control-plane graph;
-- data-flow graph;
-- AI/agent graph;
-- memory/storage graph;
-- configuration/secrets graph;
-- integration/transport graph;
-- deployment/environment graph;
-- producer/consumer contract graph.
+### Graph refinement — NEXT
+- [ ] Import-level dependency graph
+- [ ] Public API producer/consumer graph
+- [ ] Storage ownership graph
+- [ ] Configuration/secrets ownership graph
+- [ ] Runtime process/service graph
+- [ ] Event/message transport graph
+- [ ] Deployment topology
+- [ ] Security trust boundaries
 
 ## Phase 7 — AI Handoff System
 Create documentation specifically designed to let a new AI coding agent understand the ecosystem and safely continue work.
