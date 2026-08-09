@@ -2,27 +2,27 @@
 
 This matrix is intentionally conservative. `Partial` means the repository and a high-level role are known, not that the full architecture has been verified.
 
-| Project | Repository Found | High-Level Role | Source Audit | Dependencies Verified | API Audit | CI/Test Audit |
-|---|---:|---|---:|---:|---:|---:|
-| Yasin-Core | Yes | Foundation/runtime | Partial | No | No | No |
-| Yasin-Agent | Yes | Agent platform/runtime | Partial | No | No | No |
-| Yasin-AI | Yes | AI component | Partial | No | No | No |
-| YasinHub | Yes | Management/status | Partial | No | No | No |
-| YasinRelay | Yes | Relay/integration | Partial | No | No | No |
-| YasinFeed | Yes | Content generation/publishing | Partial | No | No | No |
-| YasinPress | Yes | News collection/publishing | Partial | No | No | No |
-| YasinCLI | Yes | Ecosystem control-plane CLI | Partial | No | No | No |
-| YASIN-DOCS | Yes | Documentation hub | Yes | N/A | N/A | Partial |
-| OpenFeed | Yes | Telegram fetching/API/PWA | Partial | No | No | No |
-| FeedBridge | Yes | Telegram bridge/publishing | Partial | No | No | No |
-| TJC | Yes | Jules automation CLI | Partial | No | No | No |
-| Termux Backup Manager | Yes | Backup/restore tooling | Partial | No | No | No |
+| Project | Repository Found | Architecture Record | Source Audit | Dependencies Verified | API Audit | CI/Test Audit |
+|---|---:|---:|---:|---:|---:|---:|
+| Yasin-Core | Yes | Yes | Partial | No | No | No |
+| Yasin-Agent | Yes | Yes | Partial | Partial | Partial | No |
+| Yasin-AI | Yes | Yes | Partial | No | No | No |
+| YasinHub | Yes | Yes | Partial | No | No | No |
+| YasinRelay | Yes | Yes | Partial | No | No | No |
+| YasinFeed | Yes | Yes | Partial | Partial | Partial | No |
+| YasinPress | Yes | Yes | Partial | No | No | No |
+| YasinCLI | Yes | Yes | Partial | No | Partial | No |
+| YASIN-DOCS | Yes | Yes | Yes | N/A | N/A | Partial |
+| OpenFeed | Yes | Yes | Partial | Partial | Partial | No |
+| FeedBridge | Yes | Yes | Partial | Partial | Partial | No |
+| TJC | Yes | Yes | Partial | Partial | Partial | No |
+| Termux Backup Manager | Yes | Yes | Partial | Partial | Partial | No |
 
-## Interpretation
+## Phase 5 Interpretation
 
-This file is not a quality scorecard. It records **documentation evidence coverage**.
+The **Architecture Record** column means a project-level documentation record now exists. It does not mean the underlying implementation has been fully audited.
 
-A `No` means the corresponding architecture fact has not yet been verified sufficiently to be treated as a central ecosystem fact.
+`Partial` in the dependency/API columns means there is repository-level evidence or documented integration information, but the complete source-level contract has not yet been verified.
 
 ## Completion Criteria
 
