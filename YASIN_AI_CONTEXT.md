@@ -1,6 +1,6 @@
 # Yasin Ecosystem — AI Context
 
-> Primary orientation file for a new AI agent. Read this first, then follow the documentation map.
+> Primary orientation file for a new AI agent. Read this first, then follow `docs/ai/AI_INDEX.md`.
 
 ## Identity
 
@@ -67,12 +67,22 @@ Never move information upward in this chain without evidence.
 11. Report evidence and limitations.
 ```
 
-## Major Documents
+## AI Documentation Map
 
-- `docs/architecture/` — system architecture and graph audits.
-- `docs/ai/AI_ONBOARDING.md` — detailed AI onboarding.
+- `docs/ai/AI_INDEX.md` — complete AI documentation navigation.
+- `docs/ai/AI_ONBOARDING.md` — onboarding and ecosystem orientation.
 - `docs/ai/AI_OPERATING_RULES.md` — operating rules.
 - `docs/ai/AI_EVIDENCE_POLICY.md` — evidence discipline.
+- `docs/ai/AI_PROJECT_SELECTION_MATRIX.md` — repository ownership selection.
+- `docs/ai/AI_CHANGE_IMPACT_PROTOCOL.md` — impact classification.
+- `docs/ai/AI_TESTING_VALIDATION_PROTOCOL.md` — validation ladder.
+- `docs/ai/AI_SECURITY_PROTOCOL.md` — security rules.
+- `docs/ai/AI_GIT_WORKFLOW.md` — Git workflow.
+- `docs/ai/AI_HANDOFF_PROTOCOL.md` — continuation/handoff contract.
+
+## Architecture Map
+
+- `docs/architecture/` — system architecture, project records, graphs and audits.
 - `ROADMAP.md` — documentation phase status.
 
 ## Phase State
@@ -81,13 +91,14 @@ Phase 1–5: complete.
 Phase 6: baseline architecture graphs complete; deeper source-verification items remain explicit backlog.  
 Phase 7: AI Handoff System in progress.
 
-## Non-Negotiable Safety Rules
+## Non-Negotiable Rules
 
 - Do not invent APIs, events, endpoints, schemas, deployment infrastructure, or dependencies.
 - Do not commit credentials or sensitive values.
 - Do not change a cross-project contract without checking consumers.
 - Do not claim tests were run when they were not.
 - Do not hide uncertainty.
+- Do not discard unrelated user work.
 
 ## Goal
 
