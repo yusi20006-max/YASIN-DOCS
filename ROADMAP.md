@@ -73,10 +73,10 @@
 - [x] AI onboarding guide
 - [x] AI operating rules
 - [x] AI evidence policy
-- [ ] AI project-selection matrix
-- [ ] AI change-impact protocol
-- [ ] AI testing/validation protocol
-- [ ] AI security protocol
+- [x] AI project-selection matrix
+- [x] AI change-impact protocol
+- [x] AI testing/validation protocol
+- [x] AI security protocol
 - [ ] AI Git workflow protocol
 - [ ] AI handoff/reporting protocol
 - [ ] Unified AI index/navigation
