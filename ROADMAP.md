@@ -74,6 +74,8 @@
 - [x] Event/message/data-flow graph baseline
 - [x] Import-level dependency audit evidence pass
 - [x] Public API / symbol-level graph baseline
+- [x] Consolidated storage/schema audit
+- [x] Consolidated configuration/secret audit
 - [ ] Complete import-level dependency graph
 - [ ] Complete source-verified symbol-level public API graph
 - [ ] Verify all storage owners and schemas
