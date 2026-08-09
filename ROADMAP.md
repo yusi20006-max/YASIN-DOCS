@@ -28,20 +28,22 @@ Audit the actual GitHub repositories and replace assumptions with verified facts
 - [ ] Full source-level dependency/API verification — carried forward to detailed project audits
 - [ ] Full issue/PR/CI/CD audit — carried forward to detailed project audits
 
-## Phase 3 — Project Registry — NEXT
+## Phase 3 — Project Registry — COMPLETE (initial registry)
 
 Create the authoritative machine-readable and human-readable project registry.
 
-- canonical repository metadata
-- category and lifecycle status
-- responsibility and non-responsibility
-- dependencies and consumers
-- interfaces and data stores
-- external integrations
-- evidence/confidence level
-- cross-project impact
+- [x] Canonical repository metadata
+- [x] Category and lifecycle status
+- [x] Initial responsibility and non-responsibility model
+- [x] Dependency/consumer fields established without unsupported assumptions
+- [x] Interface and integration fields established
+- [x] Evidence/confidence model
+- [x] Cross-project impact fields
+- [x] Human-readable project matrix
+- [x] Documentation audit coverage matrix
+- [ ] Promote provisional relationships to verified after source-level audits
 
-## Phase 4 — Master Architecture
+## Phase 4 — Master Architecture — NEXT
 
 Produce the comprehensive ecosystem architecture specification covering boundaries, dependencies, flows, interfaces, security, deployment, testing, and architectural decisions.
 
