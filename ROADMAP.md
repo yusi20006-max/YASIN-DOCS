@@ -70,6 +70,7 @@
 - [x] Security trust-boundary baseline
 - [x] Yasin-Agent module/API boundary evidence
 - [x] Storage/configuration/security ownership graph
+- [x] Runtime and deployment topology baseline
 - [ ] Complete import-level dependency graph
 - [ ] Complete symbol-level public API graph
 - [ ] Verify all storage owners and schemas
