@@ -69,6 +69,7 @@
 - [x] Event/message evidence rules
 - [x] Security trust-boundary baseline
 - [x] Yasin-Agent module/API boundary evidence
+- [x] Storage/configuration/security ownership graph
 - [ ] Complete import-level dependency graph
 - [ ] Complete symbol-level public API graph
 - [ ] Verify all storage owners and schemas
