@@ -2,58 +2,54 @@
 
 ## Phase 1 — Foundation — COMPLETE
 
-Establish the YASIN-DOCS repository as the central documentation hub.
-
-- [x] Repository created
-- [x] README established as documentation-hub entry point
-- [x] Top-level architecture entry point
-- [x] Ecosystem overview
-- [x] Project registry entry point
+- [x] Documentation hub established
+- [x] Top-level architecture/ecosystem/project documents
 - [x] Documentation directory foundation
-- [x] AI documentation foundation
-- [x] Development and operations foundation
+- [x] AI, development, operations and security entry points
 
 ## Phase 2 — Repository Discovery — COMPLETE (initial discovery)
-
-Audit the actual GitHub repositories and replace assumptions with verified facts.
 
 - [x] Repository inventory and identity
 - [x] Default branches and visibility
 - [x] README-level project purpose and boundaries
 - [x] Major documented modules
-- [x] Initial cross-project relationships
-- [x] Initial classification of core, related, supporting, private, and out-of-scope repositories
-- [x] Identification of missing/unverified repositories
-- [x] Cross-project architecture questions for deeper audit
-- [ ] Full source-level dependency/API verification — carried forward to detailed project audits
-- [ ] Full issue/PR/CI/CD audit — carried forward to detailed project audits
+- [x] Initial cross-project relationships and architecture questions
+- [x] Classification of primary, related and supporting projects
+- [x] Missing/unverified repository identification
+- [ ] Full source-level dependency/API verification — detailed project audits
+- [ ] Full issue/PR/CI/CD audit — detailed project audits
 
 ## Phase 3 — Project Registry — COMPLETE (initial registry)
 
-Create the authoritative machine-readable and human-readable project registry.
-
-- [x] Canonical repository metadata
-- [x] Category and lifecycle status
-- [x] Initial responsibility and non-responsibility model
-- [x] Dependency/consumer fields established without unsupported assumptions
-- [x] Interface and integration fields established
+- [x] Machine-readable registry
+- [x] Human-readable registry
+- [x] Project status/audit matrix
 - [x] Evidence/confidence model
-- [x] Cross-project impact fields
-- [x] Human-readable project matrix
-- [x] Documentation audit coverage matrix
-- [ ] Promote provisional relationships to verified after source-level audits
+- [x] Cross-project fields
+- [ ] Promote relationships to verified after source audits
 
-## Phase 4 — Master Architecture — NEXT
+## Phase 4 — Master Architecture — COMPLETE (initial baseline)
 
-Produce the comprehensive ecosystem architecture specification covering boundaries, dependencies, flows, interfaces, security, deployment, testing, and architectural decisions.
+- [x] Master architecture document
+- [x] System overview
+- [x] Component classification
+- [x] Responsibility model
+- [x] Boundary model
+- [x] Conceptual data/control/AI/agent flows
+- [x] Configuration/security/deployment/testing principles
+- [x] AI coding-agent operating model
+- [x] Architecture maturity model
+- [x] Known architectural questions
+- [ ] Replace conceptual relationships with source-verified graphs
+- [ ] Complete production-grade architecture after detailed project audits
 
-## Phase 5 — Per-Project Architecture
+## Phase 5 — Per-Project Architecture — NEXT
 
-Create a detailed architecture record for every relevant Yasin repository.
+Create detailed architecture records for every relevant Yasin repository. Each record will be based on the actual source tree, interfaces, configuration, tests, CI/CD, issues, releases, and integrations.
 
 ## Phase 6 — System Graphs
 
-Document dependency, data, control, AI, agent, memory, configuration, integration, and deployment flows.
+Document verified dependency, data, control, AI, agent, memory, configuration, integration, and deployment flows.
 
 ## Phase 7 — AI Handoff System
 
