@@ -55,6 +55,8 @@
 - [x] TJC
 - [x] Termux Backup Manager
 - [x] Standard audit template
+- [x] Initial source/manifest evidence pass
+- [x] Initial verified-contract register
 
 ### Deep verification still required for every project
 - [ ] Source-level dependency graph
