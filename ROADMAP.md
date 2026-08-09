@@ -73,8 +73,9 @@
 - [x] Runtime and deployment topology baseline
 - [x] Event/message/data-flow graph baseline
 - [x] Import-level dependency audit evidence pass
+- [x] Public API / symbol-level graph baseline
 - [ ] Complete import-level dependency graph
-- [ ] Complete symbol-level public API graph
+- [ ] Complete source-verified symbol-level public API graph
 - [ ] Verify all storage owners and schemas
 - [ ] Verify configuration/secrets ownership
 - [ ] Verify runtime process/service topology
