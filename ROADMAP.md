@@ -50,14 +50,11 @@
 - [x] YasinFeed
 - [x] YasinPress
 - [x] YasinCLI
+- [x] OpenFeed
+- [x] FeedBridge
+- [x] TJC
+- [x] Termux Backup Manager
 - [x] Standard audit template
-
-### Remaining detailed records
-- [ ] OpenFeed
-- [ ] FeedBridge
-- [ ] TJC
-- [ ] Termux Backup Manager
-- [ ] Other active/supporting repositories discovered during audit
 
 ### Deep verification still required for every project
 - [ ] Source-level dependency graph
