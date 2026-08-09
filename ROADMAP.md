@@ -77,9 +77,9 @@
 - [x] AI change-impact protocol
 - [x] AI testing/validation protocol
 - [x] AI security protocol
-- [ ] AI Git workflow protocol
-- [ ] AI handoff/reporting protocol
-- [ ] Unified AI index/navigation
+- [x] AI Git workflow protocol
+- [x] AI handoff/reporting protocol
+- [x] Unified AI index/navigation
 - [ ] AI context consistency audit
 
 ## Phase 8 — Architecture Decision Records
