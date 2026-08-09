@@ -30,7 +30,8 @@ Proposed → Under Review → Accepted
 | ADR-0007 | AI/provider boundary | Proposed | AI/provider capabilities are kept behind explicit Yasin-AI boundaries rather than duplicated across consumers. |
 | ADR-0008 | Storage ownership | Proposed | Storage ownership remains component-scoped unless a shared store is explicitly designed and verified. |
 | ADR-0009 | Security/trust | Proposed | Plugin/tool execution must have an explicit trust boundary; in-process execution is not automatically a sandbox. |
-| ADR-0010 | Documentation | Proposed | YASIN-DOCS is the centralized architecture, decision, evidence, and AI-handoff knowledge layer. |
+| ADR-0010 | Feed/content/publishing | Proposed | Feed ingestion, content processing, and publishing are distinct responsibilities with explicit boundaries. |
+| ADR-0011 | Documentation governance | Proposed | YASIN-DOCS is the centralized architecture, decision, evidence, and AI-handoff knowledge layer. |
 
 ## Status Note
 
