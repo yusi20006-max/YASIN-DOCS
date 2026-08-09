@@ -46,9 +46,9 @@
 - [x] Explicit evidence limitations and candidate handling
 - [x] High-confidence cross-project contracts documented
 
-## Phase 6 — System Graphs — IN PROGRESS
+## Phase 6 — System Graphs — COMPLETE (baseline closure)
 
-### Initial graph baseline — COMPLETE
+### Graph baseline
 - [x] Ecosystem control graph
 - [x] Agent graph
 - [x] Content/feed graph
@@ -57,35 +57,29 @@
 - [x] Management graph
 - [x] Supporting infrastructure graph
 - [x] Memory/knowledge capability graph
-- [x] Deployment capability graph
-- [x] Graph confidence rules
-
-### Graph refinement — IN PROGRESS
-- [x] Dependency/contract graph initial refinement
-- [x] API producer/consumer evidence model
-- [x] Storage ownership evidence model
-- [x] Configuration ownership evidence model
-- [x] Runtime process classification
-- [x] Event/message evidence rules
-- [x] Security trust-boundary baseline
-- [x] Yasin-Agent module/API boundary evidence
+- [x] Runtime/deployment capability graph
+- [x] Dependency/contract graph
+- [x] API producer/consumer model
 - [x] Storage/configuration/security ownership graph
-- [x] Runtime and deployment topology baseline
-- [x] Event/message/data-flow graph baseline
-- [x] Import-level dependency audit evidence pass
-- [x] Public API / symbol-level graph baseline
-- [x] Consolidated storage/schema audit
-- [x] Consolidated configuration/secret audit
+- [x] Event/message/data-flow graph
+- [x] Import/API evidence baseline
+- [x] Storage/schema audit baseline
+- [x] Configuration/secret audit baseline
+- [x] Deployment evidence audit
+- [x] Phase 6 closure checklist
+
+### Deferred source-verification work
+These remain explicit audit backlog items and are not treated as missing architecture:
 - [ ] Complete import-level dependency graph
 - [ ] Complete source-verified symbol-level public API graph
-- [ ] Verify all storage owners and schemas
-- [ ] Verify configuration/secrets ownership
-- [ ] Verify runtime process/service topology
-- [ ] Verify event/message transport and payloads
-- [ ] Verify deployment topology
+- [ ] Complete storage schema inventory
+- [ ] Complete configuration/secret inventory
+- [ ] Exact runtime process/service topology
+- [ ] Exact event/message transport and payloads
+- [ ] Exact production deployment topology
 
-## Phase 7 — AI Handoff System
-Create documentation specifically designed to let a new AI coding agent understand the ecosystem and safely continue work.
+## Phase 7 — AI Handoff System — NEXT
+Create the documentation layer that allows a new AI coding agent to understand the ecosystem, select the correct repository, respect boundaries, inspect evidence, continue implementation, test changes, and report progress safely.
 
 ## Phase 8 — Architecture Decision Records
 Capture important architectural decisions and their rationale.
