@@ -68,7 +68,7 @@
 - [ ] Exact event/message transport and payloads
 - [ ] Exact production deployment topology
 
-## Phase 7 — AI Handoff System — IN PROGRESS
+## Phase 7 — AI Handoff System — COMPLETE
 - [x] Primary AI context file
 - [x] AI onboarding guide
 - [x] AI operating rules
@@ -80,10 +80,20 @@
 - [x] AI Git workflow protocol
 - [x] AI handoff/reporting protocol
 - [x] Unified AI index/navigation
-- [ ] AI context consistency audit
+- [x] AI context consistency audit
 
-## Phase 8 — Architecture Decision Records
-Capture important architectural decisions and their rationale.
+## Phase 8 — Architecture Decision Records — IN PROGRESS
+- [ ] ADR standard and lifecycle
+- [ ] ADR index
+- [ ] Initial foundational architecture decisions
+- [ ] Runtime/core boundary decisions
+- [ ] Agent architecture decisions
+- [ ] AI/provider decisions
+- [ ] Data/storage decisions
+- [ ] Relay/feed/publishing decisions
+- [ ] CLI/operations decisions
+- [ ] Security/trust-boundary decisions
+- [ ] Documentation governance decisions
 
 ## Phase 9 — GitHub Governance
 Establish documentation-specific issues, labels, workflows, contribution rules, and quality checks.
