@@ -47,17 +47,8 @@
 - [x] High-confidence cross-project contracts documented
 
 ## Phase 6 — System Graphs — COMPLETE (baseline closure)
-
-### Graph baseline
-- [x] Ecosystem control graph
-- [x] Agent graph
-- [x] Content/feed graph
-- [x] Relay graph
-- [x] AI capability graph
-- [x] Management graph
-- [x] Supporting infrastructure graph
-- [x] Memory/knowledge capability graph
-- [x] Runtime/deployment capability graph
+- [x] Ecosystem control, agent, content/feed, relay, AI, management, infrastructure and knowledge graphs
+- [x] Runtime/deployment baseline
 - [x] Dependency/contract graph
 - [x] API producer/consumer model
 - [x] Storage/configuration/security ownership graph
@@ -69,7 +60,6 @@
 - [x] Phase 6 closure checklist
 
 ### Deferred source-verification work
-These remain explicit audit backlog items and are not treated as missing architecture:
 - [ ] Complete import-level dependency graph
 - [ ] Complete source-verified symbol-level public API graph
 - [ ] Complete storage schema inventory
@@ -78,8 +68,19 @@ These remain explicit audit backlog items and are not treated as missing archite
 - [ ] Exact event/message transport and payloads
 - [ ] Exact production deployment topology
 
-## Phase 7 — AI Handoff System — NEXT
-Create the documentation layer that allows a new AI coding agent to understand the ecosystem, select the correct repository, respect boundaries, inspect evidence, continue implementation, test changes, and report progress safely.
+## Phase 7 — AI Handoff System — IN PROGRESS
+- [x] Primary AI context file
+- [x] AI onboarding guide
+- [x] AI operating rules
+- [x] AI evidence policy
+- [ ] AI project-selection matrix
+- [ ] AI change-impact protocol
+- [ ] AI testing/validation protocol
+- [ ] AI security protocol
+- [ ] AI Git workflow protocol
+- [ ] AI handoff/reporting protocol
+- [ ] Unified AI index/navigation
+- [ ] AI context consistency audit
 
 ## Phase 8 — Architecture Decision Records
 Capture important architectural decisions and their rationale.
