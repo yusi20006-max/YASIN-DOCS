@@ -2,45 +2,42 @@
 
 This matrix is intentionally conservative. `Partial` means the repository and a high-level role are known, not that the full architecture has been verified.
 
-| Project | Repository Found | Architecture Record | Source/Manifest Audit | Dependencies Verified | API Audit | CI/Test Audit |
+| Project | Repository Found | Architecture Record | Source/Manifest Evidence | Cross-Project Contract | API Audit | CI/Test Audit |
 |---|---:|---:|---:|---:|---:|---:|
-| Yasin-Core | Yes | Yes | Partial | Partial | Partial | No |
-| Yasin-Agent | Yes | Yes | Partial | Partial | Partial | No |
-| Yasin-AI | Yes | Yes | Partial | Partial | Partial | Partial |
-| YasinHub | Yes | Yes | Partial | No | No | Partial |
-| YasinRelay | Yes | Yes | Partial | No | No | No |
-| YasinFeed | Yes | Yes | Partial | Partial | Partial | No |
-| YasinPress | Yes | Yes | Partial | No | No | No |
-| YasinCLI | Yes | Yes | Partial | No | Partial | Partial |
-| YASIN-DOCS | Yes | Yes | Yes | N/A | N/A | Partial |
-| OpenFeed | Yes | Yes | Partial | Partial | Partial | No |
-| FeedBridge | Yes | Yes | Partial | Partial | Partial | No |
+| Yasin-Core | Yes | Yes | Strong | Strong | Partial | Strong |
+| Yasin-Agent | Yes | Yes | Strong | Strong | Partial | Strong |
+| Yasin-AI | Yes | Yes | Strong | Partial | Partial | Strong |
+| YasinHub | Yes | Yes | Strong | Strong | Partial | Strong |
+| YasinRelay | Yes | Yes | Strong | Strong | Partial | Partial |
+| YasinFeed | Yes | Yes | Partial | Strong | Partial | Partial |
+| YasinPress | Yes | Yes | Partial | Partial | Partial | Partial |
+| YasinCLI | Yes | Yes | Strong | Strong | Partial | Strong |
+| YASIN-DOCS | Yes | Yes | Complete | N/A | N/A | Partial |
+| OpenFeed | Yes | Yes | Partial | Partial | Partial | Partial |
+| FeedBridge | Yes | Yes | Strong | Strong | Partial | Partial |
 | TJC | Yes | Yes | Partial | Partial | Partial | Partial |
-| Termux Backup Manager | Yes | Yes | Partial | Partial | Partial | No |
+| Termux Backup Manager | Yes | Yes | Partial | Partial | Partial | Partial |
+| YasinCoder | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
+| YasinJules | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
+| Telegram-Mirror | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
+| YasinPress-Rewrite- | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
 
-## Phase 5 Interpretation
+## Evidence Notes
 
-The **Architecture Record** column means a project-level documentation record now exists. It does not mean the underlying implementation has been fully audited.
+- **Strong** means direct implementation/package/PR evidence exists for the specific category.
+- **Partial** means some repository evidence exists but the complete contract is not verified.
+- **Unknown** means no sufficient evidence was collected yet.
+- `Scope candidate` means the repository was discovered in the owner's GitHub inventory but has not been proven to be an active architectural component.
 
-`Partial` in the source, dependency, API, or CI columns means there is repository-level evidence or documented implementation information, but the complete source-level contract has not yet been verified.
+## Key Verified Contracts
 
-## Current Deep-Audit Evidence
-
-`docs/projects/SOURCE_LEVEL_AUDIT.md` records the first implementation-manifest evidence pass across the ecosystem. It should be read together with the project-specific records.
+`docs/projects/VERIFIED_CONTRACTS.md` and `docs/projects/SOURCE_VERIFIED_ARCHITECTURE.md` record the strongest cross-project evidence discovered during Phase 5.
 
 ## Completion Criteria
 
-A project becomes fully audited when its record covers:
+Architecture documentation is considered complete only when every discovered repository is either:
 
-- source tree and module boundaries;
-- runtime entry points;
-- public APIs and contracts;
-- configuration and secrets;
-- dependencies and consumers;
-- storage and data model;
-- tests and CI/CD;
-- issues and roadmap;
-- external integrations;
-- security boundaries;
-- operational lifecycle;
-- cross-project impact.
+1. included as an audited Yasin component; or
+2. explicitly classified as related/supporting/out-of-scope with the reason recorded.
+
+Low-level unknowns must remain explicitly marked rather than replaced with assumptions.
