@@ -1,0 +1,153 @@
+schema_version: "1.0"
+registry_status: "initial"
+source_of_truth: "YASIN-DOCS for ecosystem-level relationships; individual repositories for implementation facts"
+last_verified: "2026-08-09"
+
+projects:
+  - id: yasin-core
+    name: Yasin-Core
+    repository: yusi20006-max/Yasin-core
+    category: foundation
+    role: "Core runtime/foundation layer"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Exact public API, runtime boundaries, and consumers require deeper source audit."
+
+  - id: yasin-agent
+    name: Yasin-Agent
+    repository: yusi20006-max/Yasin-agent
+    category: agent
+    role: "Agent platform/runtime"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Relationship with Yasin-Core and Yasin-AI requires source-level verification."
+
+  - id: yasin-ai
+    name: Yasin-AI
+    repository: yusi20006-max/Yasin-AI
+    category: ai
+    role: "AI-related ecosystem component"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Exact responsibility and provider boundary require source audit."
+
+  - id: yasinhub
+    name: YasinHub
+    repository: yusi20006-max/YasinHub
+    category: management
+    role: "Ecosystem management/status component"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Do not assume orchestration responsibilities until verified from source."
+
+  - id: yasinrelay
+    name: YasinRelay
+    repository: yusi20006-max/YasinRelay
+    category: integration
+    role: "Relay/integration layer"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Relationship with OpenFeed/FeedBridge requires source-level verification."
+
+  - id: yasinfeed
+    name: YasinFeed
+    repository: yusi20006-max/Yasinfeed
+    category: application
+    role: "AI-assisted content generation and publishing pipeline"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Repository-specific architecture and publishing boundaries require deeper audit."
+
+  - id: yasinpress
+    name: YasinPress
+    repository: yusi20006-max/Yasinpress
+    category: application
+    role: "Automated Persian news collection and Eitaa publishing"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "README identifies RSS ingestion, duplicate detection, AI processing, queueing, SQLite and Eitaa publishing."
+
+  - id: yasincli
+    name: YasinCLI
+    repository: yusi20006-max/Yasin-cli
+    category: control-plane
+    role: "Unified CLI/control tooling for the Yasin ecosystem"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Exact command/API boundaries require source audit."
+
+  - id: yasindocs
+    name: YASIN-DOCS
+    repository: yusi20006-max/YASIN-DOCS
+    category: documentation
+    role: "Central ecosystem architecture and knowledge repository"
+    status: active
+    architecture_status: foundation
+    depends_on: []
+    consumers: ["developers", "AI coding agents"]
+
+  - id: openfeed
+    name: OpenFeed
+    repository: yusi20006-max/Openfeed
+    category: integration
+    role: "Stable Telegram public-channel fetching and local API/PWA"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "README declares OpenFeed a stable core and limits new scope to fixes, security, performance and compatibility."
+
+  - id: feedbridge
+    name: FeedBridge
+    repository: yusi20006-max/Feedbridge
+    category: application
+    role: "Telegram content bridge with processing and Eitaa publishing"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "README states it embeds a vendored fetcher derived from OpenFeed's telemirror engine."
+
+  - id: tjc
+    name: TJC
+    repository: yusi20006-max/TJC
+    category: developer-tooling
+    role: "Termux/POSIX-shell CLI platform for Google Jules API workflows"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Includes workflow, scheduler and plugin systems."
+
+  - id: termux-backup-manager
+    name: Termux Backup Manager
+    repository: yusi20006-max/Termux-BackupManager
+    category: tooling
+    role: "Termux backup, restore and migration manager"
+    status: verified-repository
+    architecture_status: partial
+    depends_on: []
+    consumers: []
+    notes: "Uses rclone and Google Drive according to repository README."
+
+rules:
+  - "Do not infer a dependency solely from project naming."
+  - "Do not mark a planned relationship as implemented."
+  - "Use source-level evidence to promote provisional relationships to verified relationships."
+  - "When two repositories overlap, document ownership boundaries before recommending consolidation or deletion."
