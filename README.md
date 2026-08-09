@@ -2,75 +2,148 @@
 
 ## Yasin Ecosystem Documentation Hub
 
-YASIN-DOCS is the central documentation and architectural knowledge repository for the **Yasin Ecosystem**.
+YASIN-DOCS is the **canonical documentation and architecture repository for the Yasin Ecosystem**.
 
-Its purpose is to provide a single, structured source of truth for understanding how the Yasin projects fit together, what each project is responsible for, how they communicate, and how developers and AI coding agents should work across the ecosystem.
+Its purpose is to give human developers and AI coding agents a single, structured entry point for understanding project roles, boundaries, dependencies, contracts, operations, and architectural decisions before changing code.
 
-## What belongs here
+## Start Here
 
-- Ecosystem architecture
-- Project responsibilities and boundaries
-- Cross-project dependencies
-- Data, control, AI, agent, and integration flows
-- Public interfaces and architectural contracts
-- Architecture Decision Records (ADRs)
-- Development and operational guidance
-- AI-agent context and project handoff documentation
-- Ecosystem roadmap and project status
+1. **[Canonical Ecosystem Architecture](docs/architecture/YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md)** — read this first.
+2. **[Dependency Matrix](docs/architecture/ECOSYSTEM_DEPENDENCY_MATRIX_V1.md)** — understand confirmed and unconfirmed project relationships.
+3. **Project architecture documents** — read the document for the project being modified.
+4. **ADRs** — read relevant decisions before changing cross-project boundaries.
 
-## What does not belong here
+## Canonical Architecture
 
-YASIN-DOCS is **not** the implementation repository for the Yasin runtime or application projects. Source code remains in its respective repository. This repository documents the system-level relationships, contracts, decisions, and knowledge needed to work safely across those repositories.
+```text
+                         USER / OPERATOR
+                                │
+                                ▼
+                           YasinCLI
+                    Unified User Interface
+                                │
+                                ▼
+                           YasinHub
+                   Control + Observability
+                                │
+             ┌──────────────────┼──────────────────┐
+             ▼                  ▼                  ▼
+         Yasin-Core        Yasin-Agent       Applications
+                                                │
+                                      ┌─────────┼─────────┐
+                                      ▼         ▼         ▼
+                                   Relay      Feed      Press
+
+                            Yasin-AI
+                     Independent AI Platform
+```
+
+## Repository Map
+
+| Repository | Role |
+|---|---|
+| `Yasin-Core` | Runtime and SDK foundation |
+| `Yasin-Agent` | Agent/workflow execution |
+| `Yasin-AI` | AI platform: runtime, knowledge, memory, API, extensions, observability |
+| `YasinHub` | Ecosystem control and observability plane |
+| `YasinCLI` | Unified user-facing CLI and ecosystem orchestration |
+| `YasinRelay` | Telegram/content relay and publishing pipeline |
+| `YasinFeed` | General content aggregation/processing/publishing |
+| `YasinPress` | Specialized Persian-news publishing |
+| `YASIN-DOCS` | Canonical ecosystem documentation |
 
 ## Documentation Structure
 
 ```text
 YASIN-DOCS/
 ├── README.md
-├── ARCHITECTURE.md
-├── ECOSYSTEM.md
-├── PROJECTS.md
-├── ROADMAP.md
-├── CONTRIBUTING.md
-├── DEVELOPMENT.md
-├── SECURITY.md
-│
 ├── docs/
 │   ├── architecture/
-│   ├── projects/
-│   ├── development/
+│   │   ├── YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md
+│   │   ├── ECOSYSTEM_DEPENDENCY_MATRIX_V1.md
+│   │   ├── YASIN_RELAY_ARCHITECTURE.md
+│   │   └── YASIN_FEED_PRESS_ARCHITECTURE.md
+│   ├── adr/
+│   │   └── Architecture decisions and audit records
+│   ├── api/
+│   │   └── Public APIs and integration contracts
 │   ├── operations/
-│   └── ai/
-│
+│   │   └── Runbooks and lifecycle procedures
+│   └── compatibility/
+│       └── Version and compatibility matrices
 └── .github/
 ```
 
-## Core Principle
+The existing top-level documents (`ARCHITECTURE.md`, `ECOSYSTEM.md`, `PROJECTS.md`, `ROADMAP.md`, etc.) remain valid historical/documentation entry points. The canonical architecture document is now the authoritative system-level baseline.
 
-> **YASIN-DOCS is the system-level source of truth; individual repositories remain the source of truth for their own implementation.**
+## Evidence Policy
 
-Documentation must distinguish between:
+YASIN-DOCS uses four evidence states:
 
-- current implementation
-- intended architecture
-- planned roadmap
-- experimental or provisional behavior
+- **Confirmed** — supported by repository/source evidence.
+- **Inferred** — strongly indicated but not fully established.
+- **Proposed** — future architecture or design option.
+- **Unresolved** — requires further investigation or an ADR.
 
-No architectural fact should be presented as implemented merely because it is planned.
+Never convert an inferred or proposed relationship into a confirmed dependency without evidence.
 
-## AI / Coding Agent Use
+## Change Governance
 
-This repository is designed to be consumed by AI coding agents as well as human developers. The documentation will therefore explicitly describe:
+Cross-project architectural changes should update:
 
-1. what each project is;
-2. what it is not;
-3. its responsibilities and boundaries;
-4. its dependencies and consumers;
-5. its public interfaces;
-6. its current implementation status;
-7. its known constraints and decisions; and
-8. the correct procedure for making cross-project changes.
+1. the affected project architecture document;
+2. the canonical architecture when the ecosystem graph changes;
+3. the dependency matrix when dependencies change;
+4. an ADR when the change is an intentional architectural decision;
+5. API/compatibility documentation when public contracts change.
 
-## Project Status
+Individual repositories remain the source of truth for implementation. YASIN-DOCS is the source of truth for **system-level architecture and documented decisions**.
 
-YASIN-DOCS is being established in phases. The initial phase creates the documentation foundation. Later phases will audit the actual Yasin repositories and replace assumptions with verified repository facts.
+## AI Coding Agent Workflow
+
+Before coding:
+
+```text
+Read YASIN-DOCS README
+        ↓
+Read Canonical Architecture
+        ↓
+Read Dependency Matrix
+        ↓
+Read target project architecture
+        ↓
+Inspect repository source + tests
+        ↓
+Classify the requested change
+        ↓
+Implement inside the correct boundary
+        ↓
+Run validation/tests
+        ↓
+Update YASIN-DOCS + ADR if architecture changed
+```
+
+The canonical architecture contains explicit rules for AI agents. Do not rely on repository names, assumptions, or stale conversation context to infer system relationships.
+
+## What Belongs Here
+
+- Ecosystem architecture
+- Project responsibilities and boundaries
+- Cross-project dependencies
+- Data, control, AI, agent, and integration flows
+- Public interfaces and architectural contracts
+- ADRs
+- Development and operational guidance
+- AI-agent context and handoff documentation
+- Ecosystem roadmap and project status
+- Compatibility and release information
+
+## What Does Not Belong Here
+
+YASIN-DOCS is **not** the implementation repository for Yasin runtime or application code. Source code remains in each project's repository.
+
+## Status
+
+**YASIN-DOCS v1 documentation baseline established.**
+
+The architecture is intentionally conservative: current facts are separated from future design decisions so this repository can serve as a reliable context package for both humans and AI coding agents.
