@@ -12,7 +12,17 @@ The architecture documentation therefore treats the ecosystem as a system of coo
 
 The detailed architecture is maintained under [`docs/architecture/`](docs/architecture/).
 
-The planned architecture documentation covers:
+Project-specific production architecture and roadmaps are maintained under [`docs/projects/`](docs/projects/).
+
+### YasinPress
+
+- [YasinPress Architecture & Production Roadmap](docs/projects/yasinpress/ARCHITECTURE-ROADMAP.md)
+
+This roadmap is the shared target architecture for the YasinPress news-ingestion, article-intelligence, AI, queue, publishing, monitoring, PWA, scheduler and recovery pipeline. It explicitly distinguishes repository-verified implementation from planned production behavior.
+
+## Planned Architecture Coverage
+
+The architecture documentation covers:
 
 - ecosystem vision and boundaries;
 - global component and layer model;
@@ -26,7 +36,8 @@ The planned architecture documentation covers:
 - configuration and security boundaries;
 - deployment and observability;
 - testing and compatibility;
-- architecture decisions.
+- architecture decisions;
+- project-specific production roadmaps.
 
 ## Current-State Rule
 
