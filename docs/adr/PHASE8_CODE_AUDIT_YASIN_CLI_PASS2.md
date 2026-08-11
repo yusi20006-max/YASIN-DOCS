@@ -59,20 +59,37 @@ Also verified (not changed, already correct in current code):
 already checks process identity) and M-02 (Windows shell injection —
 `spawn()` already hardcodes `shell: false`).
 
-## 4. CI Discrepancy Recorded
+## 4. CI Discrepancy — RESOLVED (update: 2026-08-11)
 
-The repository's `phase-4-5-1-ci.yml` workflow (9-way OS/Node matrix) fails
-on all 9 combinations both before and after this fix — confirmed by
-comparing check-run results on `initial-setup` pre-fix vs. the fix branch.
-This appears to be a pre-existing environment/runner issue unrelated to the
-crash bug above; full logs were not accessible during this pass (artifact
-host outside the auditing environment's network allowlist). The main `test`
-and `release-check` workflows both pass after the fix (both failed before,
-for the same crash reason as above).
+**Original observation (recorded above, now superseded):** the
+`phase-4-5-1-ci.yml` workflow failed on all 9 OS/Node combinations both
+before and after the Pass 2 fix, and was recorded as Level 5 — Unknown
+pending full log access.
 
-**This is recorded as Level 5 — Unknown** pending someone with full CI log
-access investigating `phase-4-5-1-ci.yml` directly. It should not be
-assumed fixed by this pass.
+**Root cause found (Source verified, PR `Yasin-cli#30`, merged):** the
+workflow's "Lockfile contract" step ran
+`npm test -- --runInBand tests/lockfile-contract.test.js`, but that file
+never existed in the repository. Reproduced locally: running that exact
+command exits with code 1 ("No tests found") on any OS/Node version,
+which matches the CI history exactly. This was a missing file, not a
+runner/environment flake.
+
+**Fix:** added `tests/lockfile-contract.test.js` (4 checks: lockfile
+version, name match, dependency presence, and a real `npm ci --dry-run`
+against the committed lockfile). This alone brought 6 of 9 combinations
+(all ubuntu/macos) to green.
+
+**Secondary, OS-specific bug found while fixing the above:** the
+remaining 3 failures (all `windows-latest`, every Node version) were a
+second, independent bug introduced by the fix itself:
+`execFileSync('npm', ...)` without `shell: true` throws `ENOENT` on
+Windows, because `npm` resolves to `npm.cmd` there, which
+`execFileSync` cannot invoke directly without shell involvement. Added
+`shell: process.platform === 'win32'` to the same call.
+
+**Final state, confirmed via GitHub check-runs (not assumed):** all 9
+`phase-4-5-1-ci.yml` matrix combinations pass, plus `test` and
+`release-check`.
 
 ## 5. Remaining Known Gaps (unchanged from Pass 1 / AUDIT_REPORT.md)
 
@@ -86,6 +103,6 @@ assumed fixed by this pass.
 
 ## 6. Next Step
 
-Investigate `phase-4-5-1-ci.yml` failure with full log access. Then proceed
-to the Yasin-AI adapter gap identified in Pass 1, following the L3 change
-procedure in `AI_CHANGE_IMPACT_PROTOCOL.md`.
+Proceed to the Yasin-AI adapter gap identified in Pass 1, following the
+L3 change procedure in `AI_CHANGE_IMPACT_PROTOCOL.md` (inspect
+`docs/api/YASIN_AI_PUBLIC_API_V1.md` before implementation).
