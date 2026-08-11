@@ -20,7 +20,7 @@ This matrix is intentionally conservative. `Partial` means the repository and a 
 | YasinCoder | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
 | YasinJules | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
 | Telegram-Mirror | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
-| YasinPress-Rewrite- | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
+| YasinPress-Rewrite- | Yes | Yes | Strong | Partial | Not audited | Failing |
 
 ## Evidence Notes
 

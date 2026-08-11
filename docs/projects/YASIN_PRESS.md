@@ -1,7 +1,8 @@
 # YasinPress — Project Knowledge Pack
 
 ## Identity
-- Repository: `yusi20006-max/YasinPress`
+- Repository: `yusi20006-max/Yasinpress` (legacy, flat-script structure, no tests/CI)
+- **Active rewrite: `yusi20006-max/YasinPress-Rewrite-`** (separate repo — see `docs/projects/yasinpress-rewrite.md` for source-verified detail, including current CI status). This is the actively developed codebase; the identity/pipeline description below applies conceptually to both, but only the rewrite has verified packaging, tests, and CI.
 - Role: specialized Persian-news automation and Eitaa publishing application.
 
 ## Pipeline
