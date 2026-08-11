@@ -15,11 +15,31 @@ Its scheduler can execute the default fetch → process → store → rewrite �
 
 ## YasinPress
 
-YasinPress is a specialized Persian-news publishing engine optimized for Eitaa. It collects RSS sources, detects duplicates, rejects stale news, categorizes articles, optionally enriches them through Cloudflare Workers AI, generates hashtags and daily digests, scores/prioritizes content, maintains a durable publication queue, rate-limits sending, and persists state in SQLite.
+YasinPress is a specialized Persian-news publishing engine optimized for Eitaa. It collects RSS sources, detects duplicates, rejects stale news, categorizes articles, optionally enriches them through an AI adapter, generates hashtags and daily digests, scores/prioritizes content, maintains a durable publication queue, rate-limits sending, and persists state in SQLite.
 
 ```text
-RSS → Collection → Duplicate Detection → Age/Priority/Category → Optional Cloudflare AI → Builder/Formatter/Tags → Durable Queue → Rate Limiter → Eitaayar
+RSS → Collection → Duplicate Detection → Age/Priority/Category → Optional AI → Builder/Formatter/Tags → Durable Queue → Rate Limiter → Publisher
 ```
+
+### YasinPress v1.0.0 runtime verification
+
+YasinPress v1.0.0 has been independently verified in a real Termux/Android environment, in addition to the repository CI environment.
+
+Verified runtime:
+
+- Android/Termux
+- Python 3.14.6
+- Editable installation via `python -m pip install -e .`
+- Runtime dependencies installed successfully on ARM64 Android
+- Pytest 9.1.1 installed successfully as a development/test dependency
+- Full test suite: **114 passed**
+- CLI import and execution: **passed**
+- `yasinpress version`: **1.0.0**
+- `yasinpress status`: **database: ok**
+- `yasinpress health`: **database: ok**
+- `yasinpress config`: **configuration: ok**
+
+This confirms that YasinPress is not only CI-green but also operationally installable and executable in the intended Termux/Android environment.
 
 ## Relationship
 
@@ -33,7 +53,7 @@ The projects overlap in content ingestion and publishing but have distinct appli
 
 ## AI Boundary
 
-YasinFeed provides rewrite/AI adapter extension points for providers such as Ollama, OpenAI, and Claude. YasinPress has an explicit optional Cloudflare Workers AI integration and rule-based fallback. Neither repository should be documented as depending on Yasin-AI without source-level evidence.
+YasinFeed provides rewrite/AI adapter extension points for providers such as Ollama, OpenAI, and Claude. YasinPress provides an optional AI adapter with a rule-based fallback. Neither repository should be documented as depending on Yasin-AI without source-level evidence.
 
 ## Operational Boundary
 
@@ -58,6 +78,7 @@ YasinCLI → YasinHub → {YasinFeed, YasinPress, YasinRelay}
 
 - YasinFeed role: **CONFIRMED**
 - YasinPress role: **CONFIRMED**
+- YasinPress v1.0.0 Termux/Android runtime: **CONFIRMED**
 - Feed/Press distinction: **CONFIRMED**
 - Direct Feed → Yasin-AI dependency: **NOT ESTABLISHED**
 - Direct Press → Yasin-AI dependency: **NOT ESTABLISHED**
