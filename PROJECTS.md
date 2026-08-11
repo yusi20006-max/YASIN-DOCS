@@ -1,8 +1,8 @@
 # Yasin Projects
 
-This document is the current **Phase 2 repository registry**. It is based on the repositories visible in the GitHub account audit performed for YASIN-DOCS on 2026-08-09.
+This document is the current **repository registry**. It is based on the repositories visible in the GitHub account audit performed for YASIN-DOCS on 2026-08-09, with later source/runtime verification added where available.
 
-> **Evidence rule:** repository metadata and repository files are authoritative for implementation claims. A project is not considered part of the core Yasin architecture merely because its name contains `Yasin`.
+> **Evidence rule:** repository metadata, repository files, and executed verification are authoritative for implementation claims. A project is not considered part of the core Yasin architecture merely because its name contains `Yasin`.
 
 ## Core / Ecosystem Repositories
 
@@ -27,8 +27,8 @@ This document is the current **Phase 2 repository registry**. It is based on the
 | `Termux-BackupManager` | Termux backup/restore/migration tooling | `main` | Public | Developer/operations tooling |
 | `YasinJules` | Jules-related repository | `jules-2685192485704646500-c69dfdb7` | Public | Requires deeper audit before architectural classification |
 | `YasinCoder` | Yasin coding-related repository | `master` | Public | Requires deeper audit before architectural classification |
-| `Yasinpress` | Automated Persian news collection/AI processing/Eitaa publishing application | `main` | Private | Domain application; separate from YasinFeed until boundaries are verified |
-| `YasinPress-Rewrite-` | YasinPress rewrite-related repository | `main` | Private | Requires deeper audit |
+| `Yasinpress` | Automated Persian news collection/AI processing/Eitaa publishing application | `main` | Private | Legacy/domain application; relationship to Rewrite requires evidence |
+| `YasinPress-Rewrite-` | Production-oriented Python news collection, processing and publishing application | `main` | Private | **Verified runnable baseline; 1.0.0; 114 tests pass; CLI/database/config health verified** |
 
 ## Other Account Repositories
 
@@ -42,7 +42,7 @@ The account also contains projects that are not currently classified as Yasin ec
 
 These are recorded separately so the ecosystem audit does not accidentally absorb unrelated infrastructure or experiments.
 
-## Important Findings From Phase 2
+## Important Findings
 
 ### 1. Yasin-Core is the clearest foundation boundary
 
@@ -76,13 +76,36 @@ The repository documents configuration management, command registry, doctor diag
 
 OpenFeed documents itself as a stable fetching core. FeedBridge documents a vendored fetcher derived from OpenFeed's `telemirror` engine and adds processing, AI, queueing, publishing, dashboard, plugins, and health monitoring. YasinRelay also documents a Go fetcher and a broader relay pipeline. The exact historical and current relationship among these repositories requires source/history audit before consolidation decisions.
 
-### 9. Yasinnews is not currently present under the audited GitHub account
+### 9. YasinPress Rewrite is now source/runtime verified
+
+A fresh clone of `YasinPress-Rewrite-` was installed on Termux using Python `3.14.6`. The editable package installation succeeded. After installing the development test dependency, the complete test suite passed:
+
+```text
+114 passed in 3.84s
+```
+
+The CLI was verified with:
+
+```text
+yasinpress version  -> 1.0.0
+yasinpress status   -> database: ok
+yasinpress health   -> database: ok
+yasinpress config   -> configuration: ok
+```
+
+The configured BBC Persian RSS endpoint was independently fetched successfully with HTTP `200` and valid RSS/XML content.
+
+A previous manual Eitaa smoke test had succeeded before the publishing credential was revoked. Therefore live publishing is currently **pending fresh credential verification** and must not be documented as currently operational until retested.
+
+Detailed evidence is recorded in [`docs/projects/yasinpress-rewrite.md`](docs/projects/yasinpress-rewrite.md).
+
+### 10. Yasinnews is not currently present under the audited GitHub account
 
 A repository lookup for `Yasinnews` returned no matching repository. It must therefore be treated as **not verified/present** rather than assumed to exist.
 
 ## Next Registry Upgrade
 
-Phase 3 will convert this inventory into a machine-readable registry with:
+The next registry iteration should add or maintain:
 
 - canonical repository URL;
 - project category;
@@ -96,4 +119,4 @@ Phase 3 will convert this inventory into a machine-readable registry with:
 - implementation confidence/evidence level;
 - cross-project impact.
 
-Phase 5 will then create the detailed architecture record for each confirmed ecosystem project.
+Detailed project records should remain in `docs/projects/`, with implementation claims tied to repository evidence.
