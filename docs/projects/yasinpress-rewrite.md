@@ -1,9 +1,17 @@
 # YasinPress Rewrite
 
-> Status: **verified runnable baseline**  
-> Repository: `yusi20006-max/YasinPress-Rewrite-`  
-> Default branch: `main`  
+> Status: **⚠️ CI currently failing on `main` — do not treat as a verified baseline without re-checking**
+> Repository: `yusi20006-max/YasinPress-Rewrite-`
+> Default branch: `main`
 > Current release: `1.0.0`
+
+> **Update (2026-08-12):** The "verified runnable baseline" / "114 passed" claims below are stale. Both `YasinPress CI` and `Python Compatibility` GitHub Actions workflows are currently failing on `main` (confirmed via the Actions API, not just the runtime-verification note further down). An independent local test run (Python 3.12, closest available to the project's declared `>=3.13` — two of the failures below are artifacts of that substitution and not real bugs: `test_runtime_metadata_is_authoritative` and `test_runtime_metadata_matches_release_policy`, which just assert the pyproject string says 3.13) found 6 failures that are **not** Python-version artifacts and look like genuine bugs:
+> - `test_orchestrator_is_idempotent_after_success` (fails in both `test_orchestrator_reliability.py` and `test_publishing.py`) — publishing the same article twice returns `success_count == 0` instead of skipping cleanly with a successful idempotent result
+> - `test_all_destination_adapters_share_contract` / `test_eitaa_publisher_sends_message` — `EitaaPublisher.render()` no longer includes the article URL in its output
+> - `test_startup_allows_custom_feed` — CLI startup test failure
+> - `test_dependency_contract.py::test_runtime_and_dependency_sources_are_consistent`
+>
+> The last 5 commits on `main` were all made within the same minute on 2026-08-11 (`22:54`–`22:56`), and the idempotency failure lines up with the most recent commit message ("show duplicate and hourly publication state"), suggesting this may be an in-progress/uncommitted-fix state rather than a settled regression. Re-verify against the latest `main` before relying on any pass/fail figure in this document, including the ones below.
 
 ## Role
 

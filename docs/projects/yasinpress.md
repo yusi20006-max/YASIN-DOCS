@@ -1,5 +1,7 @@
 # YasinPress — Project Architecture Record
 
+> **Note:** This describes the legacy `Yasinpress` repository. A separate, actively developed rewrite exists at `yusi20006-max/YasinPress-Rewrite-` — see `docs/projects/yasinpress-rewrite.md` for its source-verified status. Do not assume this legacy repo is the current production codebase without checking which one is actually deployed.
+
 ## Identity
 
 - Repository: `yusi20006-max/Yasinpress`
