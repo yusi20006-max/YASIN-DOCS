@@ -53,3 +53,5 @@ Other projects should consume stable Core contracts rather than independently du
 ## Audit Status
 
 **Level 3:** role and module architecture are strongly documented. Public API surface, concrete dependency graph, consumers, configuration internals and CI details still require source-level audit.
+
+> **Update (2026-08-09):** Several of these gaps are now closed. CI exists (GitHub Actions, Python 3.9 + 3.12, runs pytest on push/PR — previously there was none). Packaging is real (`pyproject.toml`, `pip install -e .` verified from a clean venv). The dependency graph with YasinHub, Yasin-agent, and YasinRelay has been live-verified (all three actually import and call real Core, not mocks, confirmed end-to-end through the real YasinCLI). A security audit found and fixed a hardcoded admin API-key backdoor and a weak XOR credential-encryption scheme — see `docs/projects/SOURCE_VERIFIED_ARCHITECTURE.md` §1 for full detail. Test suite is currently 237/237 (not the historical 289/303 figures found elsewhere in this repo, both of which predate a later structural cleanup that removed a duplicated `yasinrelay/` package from Core — see §6 of the same document).

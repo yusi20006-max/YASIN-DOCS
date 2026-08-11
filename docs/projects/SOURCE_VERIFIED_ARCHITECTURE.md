@@ -10,7 +10,13 @@ This document records architecture facts that became clear from current reposito
 
 Yasin-Core is not merely a source tree shared with `PYTHONPATH`. Its current packaging defines a real `yasin-core` Python distribution with dynamic versioning sourced from `yasin_core.version.VERSION`, Python `>=3.9`, runtime dependencies on `requests`, `python-dotenv`, and `PyYAML`, and optional `psutil` observability support. fileciteturn84file0
 
-The repository's recent production work explicitly verified editable installation from a clean virtual environment and a full 303/303 test suite after packaging. This makes package installation part of the intended consumer contract.
+> **Update (2026-08-09, later same day):** The 303/303 figure below is superseded. A follow-up structural cleanup removed a full byte-identical duplicate of the `yasinrelay/` package and the Go `fetcher/` source that had lived inside this repo (see section 6 update) along with the Core-side tests that covered that duplicate code. The suite is now **237/237**, and CI (GitHub Actions, Python 3.9 + 3.12) now runs it automatically on every push/PR -- Core previously had no CI at all.
+>
+> A separate security audit pass also found and fixed two real vulnerabilities in `yasin_core/security/`: a hardcoded backdoor API key (`"admin-key"` granted wildcard `api:*` access to anyone) and a weak default-key XOR "encryption" scheme in the credential protector (fixed with a counter-mode keystream + HMAC integrity check, no external crypto dependency added). Any prior claim of a security PASS audit predates these fixes and should not be trusted without re-verification.
+>
+> **Packaging is no longer Core-specific.** The same pyproject.toml treatment (dynamic version, real `pip install -e .`) has since been applied to **Yasin-agent**, **YasinHub**, and **YasinRelay** as well -- all three previously had zero packaging metadata, meaning none of them were actually pip-installable, which silently broke `yasin agent version` / `yasin hub version` / `yasin relay version` in YasinCLI (see section 5) in any real deployment. All four packages (Core, Agent, Hub, Relay) were verified together in one venv and confirmed to report correct live versions through the real CLI.
+
+The repository's recent production work explicitly verified editable installation from a clean virtual environment and a full 303/303 test suite after packaging (superseded, see update above). This makes package installation part of the intended consumer contract.
 
 ## 2. Yasin-Core Public SDK is a Boundary
 
@@ -96,6 +102,8 @@ The documented runtime contract distinguishes:
 
 Capability-aware lifecycle behavior prevents unsupported start/stop/restart operations from being treated as universally available.
 
+> **Update (2026-08-09):** "Version reporting" above was not actually working for Core before a fix. `BaseEcosystemAdapter` accepted a `defaultVersionCommandArgs` constructor field but never stored or used it; the fallback logic that derives `versionCommandArgs` only produced a correct value when `versionCommand === command`, which is true for Agent/Hub/Relay (their version check reuses the same base command, just appending `--version`) but is never true for Core (`mode: 'library'`, no `command` at all, only a standalone `versionCommand`). This silently resolved to an empty args array, so `yasin core version` always returned `{ version: null, status: 'unknown' }` even against a fully working install. Fixed by storing and preferring the adapter's own `defaultVersionCommandArgs` in the fallback chain; verified live end-to-end against a real pip-installed Core 3.3.0 (now correctly returns `{ version: '3.3.0', status: 'ok' }`), with a regression test confirmed to fail on the pre-fix code.
+
 ### Current control-plane capabilities
 
 Evidence includes:
@@ -118,21 +126,23 @@ The Phase 4.5 PR added deterministic machine-readable output and stable CLI exit
 
 The Master Architecture should treat YasinCLI as a **control-plane client/orchestrator**, not merely a convenience shell wrapper.
 
-## 6. YasinRelay has a Standalone Source of Truth
+## 6. YasinRelay has a Standalone Source of Truth (RESOLVED)
+
+> **Update (2026-08-09):** This is resolved, not an open ADR candidate anymore. Verification found the embedded `yasinrelay/` package inside Yasin-Core was not a "synchronized" or evolving mirror -- it was a full, byte-identical copy (28 files, plus the Go `fetcher/` source) of code already living in the standalone YasinRelay repository, confirmed via `diff -rq` showing zero divergence. Yasin-Core's own `docs/architecture/DEPENDENCY_RULES.md` had an explicit "Core/Relay Exception" saying this duplication must not be removed until a formal migration was scheduled -- but that note assumed a *divergent* reimplementation scenario that didn't match reality (no divergence existed, so no behavioral migration was needed). The duplicate `yasinrelay/`, `fetcher/`, the Core-side tests that covered them, a stale duplicate `ARCHITECTURE.md`, and a plugin example that depended on the removed code were all deleted from Yasin-Core. Core's `pyproject.toml` no longer packages a `yasinrelay*` namespace. Yasin-Core's own architecture docs (DEPENDENCY_RULES.md, ECOSYSTEM_MAP.md, BOUNDARIES.md) were updated to record this as resolved.
 
 Yasin-Core historically contained a `yasinrelay*` package namespace in its packaging configuration. More importantly, a recent Core PR explicitly synchronized embedded relay modules from the standalone YasinRelay source of truth.
 
-This means the architecture must distinguish:
+This means the architecture must now be read as:
 
 ```text
 YasinRelay repository
-    = standalone relay source of truth
+    = sole source of truth for relay functionality
 
-Yasin-Core yasinrelay namespace
-    = synchronized/embedded compatibility or integration surface
+Yasin-Core
+    = no longer contains any yasinrelay/fetcher code (removed)
 ```
 
-The exact long-term removal/consolidation policy remains an ADR candidate.
+Separately, the standalone YasinRelay repository's own test suite had the same stale bugs found in the Core-side copy (a `Path.exists` mocking gap causing 5 false test failures, and a hardcoded assertion of an old Core SDK version) -- these had not been fixed on the canonical repo since they were previously only ever edited on the Core-side duplicate. Both were fixed directly on the standalone YasinRelay repository once it became the sole copy.
 
 YasinRelay itself is a production pipeline with routing, transport, monitoring, plugin interfaces, AI processing hooks, media handling, delivery status, retries, duplicate detection, and local task/session/conversation memory.
 
@@ -221,7 +231,7 @@ TJC remains a Jules automation/workflow tool. It belongs in the development/tool
 - Exact persistence schemas and migrations.
 - Complete runtime call graphs.
 - Full cross-project configuration key ownership.
-- Complete CI/CD topology for every repository.
+- Complete CI/CD topology for every repository. **Partial update (2026-08-09):** Core, Yasin-agent, YasinRelay, and Yasinfeed are confirmed to have GitHub Actions CI (Core's was added in this pass; it previously had none). YasinHub is confirmed to still have **no CI** at all.
 
 ### Not yet verified
 
