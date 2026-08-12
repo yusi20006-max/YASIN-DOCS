@@ -1,111 +1,145 @@
 # YasinPress Rewrite
 
-> Status: **⚠️ CI currently failing on `main` — do not treat as a verified baseline without re-checking**
+> Status: **🟡 actively being hardened**
 > Repository: `yusi20006-max/YasinPress-Rewrite-`
 > Default branch: `main`
 > Current release: `1.0.0`
 
-> **Update (2026-08-12):** The "verified runnable baseline" / "114 passed" claims below are stale. Both `YasinPress CI` and `Python Compatibility` GitHub Actions workflows are currently failing on `main` (confirmed via the Actions API, not just the runtime-verification note further down). An independent local test run (Python 3.12, closest available to the project's declared `>=3.13` — two of the failures below are artifacts of that substitution and not real bugs: `test_runtime_metadata_is_authoritative` and `test_runtime_metadata_matches_release_policy`, which just assert the pyproject string says 3.13) found 6 failures that are **not** Python-version artifacts and look like genuine bugs:
-> - `test_orchestrator_is_idempotent_after_success` (fails in both `test_orchestrator_reliability.py` and `test_publishing.py`) — publishing the same article twice returns `success_count == 0` instead of skipping cleanly with a successful idempotent result
-> - `test_all_destination_adapters_share_contract` / `test_eitaa_publisher_sends_message` — `EitaaPublisher.render()` no longer includes the article URL in its output
-> - `test_startup_allows_custom_feed` — CLI startup test failure
-> - `test_dependency_contract.py::test_runtime_and_dependency_sources_are_consistent`
->
-> The last 5 commits on `main` were all made within the same minute on 2026-08-11 (`22:54`–`22:56`), and the idempotency failure lines up with the most recent commit message ("show duplicate and hourly publication state"), suggesting this may be an in-progress/uncommitted-fix state rather than a settled regression. Re-verify against the latest `main` before relying on any pass/fail figure in this document, including the ones below.
+> **Update (2026-08-10):** A fresh Termux installation on Python `3.14.6` succeeded. `pytest` was installed separately and all `114` tests passed. CLI version/status/health/configuration all returned successfully. BBC Persian RSS was independently verified with HTTP `200` and valid current XML. `YasinPress CI #68` on commit `13b8381` was reported successful. A previous Eitaa smoke test succeeded, but its credential was subsequently revoked, so live Eitaa delivery still requires a fresh credential and end-to-end verification.
 
 ## Role
 
-YasinPress Rewrite is a Python news-automation application responsible for the application-level pipeline that collects RSS content, processes articles, assigns category/priority/breaking state, optionally uses an AI provider, and publishes through configured destinations such as Eitaa.
+YasinPress Rewrite is a Python news-automation application responsible for the application-level pipeline that collects RSS content, processes articles, assigns category/priority/breaking state, optionally uses an AI provider, and publishes through configured destinations such as Eitaa, PWA JSON Feed and RSS.
 
 It is an **application/domain pipeline**, not the system-wide Yasin control plane. Cross-project orchestration and ecosystem-level coordination remain outside this repository.
 
 ## Verified implementation
 
-The repository README documents the following implemented areas:
+The repository implements:
 
 - RSS feed fetching and source management
-- filtering and duplicate detection
+- feed parsing, filtering and duplicate detection
 - article validation and formatting
-- category and priority processing
+- category, priority and breaking-state processing
 - AI provider abstraction
-- publisher abstraction for Telegram, Eitaa and webhooks
-- SQLite repositories, migrations and transactional unit-of-work support
+- publisher abstraction and destination adapters
+- SQLite repositories, migrations and transactional persistence
 - priority queue, retry policy and scheduler
 - cache, health checks, metrics, diagnostics and statistics
-- configuration from defaults, JSON, YAML and environment variables
+- configuration from defaults and environment variables
 - REST-style routing and CLI
+- persistent JSON Feed output for the PWA
+- persistent RSS 2.0 output
 
-The release notes identify version `1.0.0` as the current foundation release and state that processing, cache, scheduler, API and categorization tests were included in the release verification.
+## Runtime verification — Termux
 
-## Runtime verification — 2026-08-11
+Fresh clone/install sequence used:
 
-A fresh clone was installed on Termux with Python `3.14.6`.
+```bash
+cd ~
+rm -rf YasinPress-Rewrite-
+git clone https://github.com/yusi20006-max/YasinPress-Rewrite-.git
+cd YasinPress-Rewrite-
 
-The editable installation completed successfully with the repository's current package metadata.
+python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
 
-After installing the test dependency separately:
+python --version
+python -m pip install --upgrade pip
+python -m pip install -e .
+python -m pip install pytest
+python -m pytest -q
+
+python -m yasinpress.cli.main --help
+```
+
+Observed on the tested device:
 
 ```text
+Python 3.14.6
 114 passed in 3.84s
+YasinPress version: 1.0.0
+database: ok
+configuration: ok
 ```
 
-The CLI was also verified:
+The clean install therefore works on the tested Termux/Python 3.14 environment, while the project metadata still declares Python `>=3.13`.
 
-```text
-yasinpress version  -> 1.0.0
-yasinpress status   -> database: ok
-yasinpress health   -> database: ok
-yasinpress config   -> configuration: ok
+## Normal CLI operation
+
+After activation:
+
+```bash
+cd ~/YasinPress-Rewrite-
+source .venv/bin/activate
+
+yasinpress version
+yasinpress status
+yasinpress health
+yasinpress config
+yasinpress run
 ```
 
-This establishes that the current repository can be installed and its basic CLI/database/configuration health path works on the tested Termux/Python 3.14 environment, even though the project documentation currently targets Python 3.13.
+`yasinpress run` is the long-running application mode. It loads RSS feeds, processes eligible articles, persists them, and publishes to configured destinations. It should remain running until interrupted.
 
-## Feed verification
+## RSS verification
 
-The configured shell variable was observed as:
+The configured feed variable was observed as:
 
 ```text
 YASINPRESS_FEEDS=https://feeds.bbci.co.uk/persian/rss.xml
 ```
 
-The RSS endpoint was independently fetched with HTTPX and returned HTTP `200` with valid RSS/XML content and current BBC Persian items.
+An independent HTTPX request returned:
 
-Important distinction: feed availability was verified independently; successful fetching of the feed does **not** by itself prove that the full `yasinpress run` pipeline will publish an item.
+```text
+STATUS: 200
+CONTENT-TYPE: text/xml; charset=utf-8
+```
+
+and valid BBC Persian RSS XML containing current articles. Therefore the previous lack of channel output was **not caused by the BBC RSS endpoint being unavailable**.
+
+## Runtime hardening completed
+
+Two runtime issues were identified and corrected in the repository:
+
+1. Worker jobs now retain the return value of their handler in `Job.result`. This allows the runtime layer to inspect the actual `ApplicationReport` after feed processing.
+2. The runtime status check was using the nonexistent `job.state` attribute instead of `job.status`. After a successful processing job, that could raise an exception and terminate the long-running loop immediately after the first cycle.
+
+The PWA client was also hardened to keep the latest successfully loaded JSON Feed in browser storage and display it when the network is unavailable.
+
+These changes are intended to make the RSS → processing → PWA/RSS path persistent rather than merely passing isolated unit tests.
 
 ## Publishing verification
 
 A previous manual Eitaa smoke test was reported as successful before the publishing token was revoked. The current source tree contains the Eitaa publisher implementation and publishing tests.
 
-The later runtime investigation found that `yasinpress run` did not result in a visible channel post. The publishing credential had also been revoked during the investigation. Therefore the current documentation must **not** claim that live Eitaa publishing is currently operational until a fresh credential is supplied and a new end-to-end smoke test succeeds.
+The current Eitaa credential must **not** be reconstructed from repository history or documentation. A fresh credential is required for a new live test. No credential value should ever be written into YASIN-DOCS or the YasinPress repository.
 
 ## Current operational boundary
 
-### Verified working
+### Verified
 
 - repository clone
 - Python virtual environment
 - editable package installation
-- test suite
+- 114-test Termux run
 - CLI entrypoint
 - version reporting
 - database status check
 - health check
 - configuration check
-- direct RSS endpoint reachability
+- direct BBC Persian RSS reachability
+- PWA/RSS publisher implementation exists
 
 ### Requires fresh live verification
 
-- complete `yasinpress run` feed-to-publish flow
+- complete `yasinpress run` feed-to-destination flow after the runtime fixes
 - live Eitaa publishing after credential replacement
 - production AI provider execution
-- long-running scheduler/worker behavior
-- production deployment configuration
-
-## Configuration / secrets
-
-The AI configuration supports an OpenAI-compatible provider and reads the API key through an environment-variable name. The repository also contains Eitaa publishing code, but credentials must remain external to source control.
-
-The `.env` file was not present during the clean runtime inspection. The feed URL was available in the shell environment. This is important when diagnosing why a local run behaves differently from CI or a previously configured machine.
+- long-running scheduler behavior after the runtime fixes
+- deployed PWA/RSS hosting and browser installation
 
 ## Architecture position in Yasin
 
@@ -120,15 +154,16 @@ The `.env` file was not present during the clean runtime inspection. The feed UR
                     │       YasinPress Rewrite
                     │             │
                     │       RSS → Process
-                    │             │
                     │       → AI (optional)
-                    │             │
-                    │       → Publish
-                    │             │
+                    │       → Persistence
+                    │       → PWA JSON Feed
+                    │       → RSS 2.0
+                    │       → Eitaa (optional)
+                    │
                     └─────────────┘
 ```
 
-The exact runtime relationship between YasinPress Rewrite and other Yasin content projects must remain evidence-based. In particular, it should not be assumed that YasinPress Rewrite is interchangeable with YasinFeed or YasinRelay merely because their domains overlap.
+The exact runtime relationship between YasinPress Rewrite and other Yasin content projects must remain evidence-based. It should not be assumed that YasinPress Rewrite is interchangeable with YasinFeed or YasinRelay merely because their domains overlap.
 
 ## Evidence policy
 
@@ -139,17 +174,15 @@ This record intentionally separates:
 - **historical verification** — reported from an earlier successful test;
 - **pending verification** — behavior that still needs a fresh live test.
 
-This follows the core YASIN-DOCS rule that planned or historical behavior must not be presented as current implementation without evidence.
+Planned behavior must not be presented as current implementation without evidence.
 
 ## Next verification target
 
-The next YasinPress verification step is a controlled end-to-end run:
+The next YasinPress verification target is a controlled end-to-end run after the runtime fixes:
 
-1. provide a fresh valid publishing credential;
-2. confirm feed configuration is loaded by the application, not only by the shell;
-3. run the pipeline once;
-4. inspect processing/publishing logs and result state;
-5. confirm the destination receives the generated article;
-6. record the exact verified configuration and result in this document.
-
-No credential value should ever be written into YASIN-DOCS or the YasinPress repository.
+1. start with the already verified RSS configuration;
+2. run `yasinpress run`;
+3. confirm the first feed cycle executes and the process remains alive;
+4. inspect the generated PWA JSON Feed and RSS XML files;
+5. only then retest Eitaa with a fresh credential;
+6. record the resulting evidence here.
