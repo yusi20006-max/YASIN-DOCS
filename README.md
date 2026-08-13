@@ -9,9 +9,10 @@ Its purpose is to give human developers and AI coding agents a single, structure
 ## Start Here
 
 1. **[Canonical Ecosystem Architecture](docs/architecture/YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md)** — read this first.
-2. **[Dependency Matrix](docs/architecture/ECOSYSTEM_DEPENDENCY_MATRIX_V1.md)** — understand confirmed and unconfirmed project relationships.
-3. **Project architecture documents** — read the document for the project being modified.
-4. **ADRs** — read relevant decisions before changing cross-project boundaries.
+2. **[Dependency Matrix](docs/architecture/ECOSYSTEM_DEPENDENCY_MATRIX_V1.md)** — understand confirmed and target project relationships.
+3. **[ADR-001 — Yasin-AI Canonical AI Platform](docs/adr/ADR-001-YASIN-AI-CANONICAL-AI-PLATFORM.md)** — read this before changing AI boundaries.
+4. **Project architecture documents** — read the document for the project being modified.
+5. **ADRs** — read relevant decisions before changing cross-project boundaries.
 
 ## Canonical Architecture
 
@@ -20,7 +21,6 @@ Its purpose is to give human developers and AI coding agents a single, structure
                                 │
                                 ▼
                            YasinCLI
-                    Unified User Interface
                                 │
                                 ▼
                            YasinHub
@@ -33,10 +33,16 @@ Its purpose is to give human developers and AI coding agents a single, structure
                                       ┌─────────┼─────────┐
                                       ▼         ▼         ▼
                                    Relay      Feed      Press
-
-                            Yasin-AI
-                     Independent AI Platform
+                                      \         │         /
+                                       \        │        /
+                                        └── AI Contracts ─┘
+                                                │
+                                                ▼
+                                           Yasin-AI
+                                      Canonical AI Plane
 ```
+
+**Yasin-AI is the canonical owner of shared ecosystem-wide AI capabilities.** It remains independently runnable, while projects consume its capabilities through explicit public/versioned contracts.
 
 ## Repository Map
 
@@ -44,7 +50,7 @@ Its purpose is to give human developers and AI coding agents a single, structure
 |---|---|
 | `Yasin-Core` | Runtime and SDK foundation |
 | `Yasin-Agent` | Agent/workflow execution |
-| `Yasin-AI` | AI platform: runtime, knowledge, memory, API, extensions, observability |
+| `Yasin-AI` | Canonical AI platform: runtime, models/providers, knowledge, memory, APIs, extensions, observability |
 | `YasinHub` | Ecosystem control and observability plane |
 | `YasinCLI` | Unified user-facing CLI and ecosystem orchestration |
 | `YasinRelay` | Telegram/content relay and publishing pipeline |
@@ -74,18 +80,16 @@ YASIN-DOCS/
 └── .github/
 ```
 
-The existing top-level documents (`ARCHITECTURE.md`, `ECOSYSTEM.md`, `PROJECTS.md`, `ROADMAP.md`, etc.) remain valid historical/documentation entry points. The canonical architecture document is now the authoritative system-level baseline.
-
 ## Evidence Policy
 
 YASIN-DOCS uses four evidence states:
 
 - **Confirmed** — supported by repository/source evidence.
-- **Inferred** — strongly indicated but not fully established.
-- **Proposed** — future architecture or design option.
+- **Target** — intentional architecture selected for implementation.
+- **Proposed** — future architecture/design option not yet selected.
 - **Unresolved** — requires further investigation or an ADR.
 
-Never convert an inferred or proposed relationship into a confirmed dependency without evidence.
+Never convert a target or proposed relationship into a confirmed runtime dependency until implementation evidence exists.
 
 ## Change Governance
 
@@ -109,6 +113,8 @@ Read YASIN-DOCS README
 Read Canonical Architecture
         ↓
 Read Dependency Matrix
+        ↓
+Read relevant ADRs
         ↓
 Read target project architecture
         ↓
@@ -144,6 +150,6 @@ YASIN-DOCS is **not** the implementation repository for Yasin runtime or applica
 
 ## Status
 
-**YASIN-DOCS v1 documentation baseline established.**
+**YASIN-DOCS v1.1 architecture baseline established.**
 
-The architecture is intentionally conservative: current facts are separated from future design decisions so this repository can serve as a reliable context package for both humans and AI coding agents.
+The baseline now explicitly defines Yasin-AI as the canonical AI capability platform while preserving independent runtime ownership and requiring explicit public contracts for cross-project integration.
