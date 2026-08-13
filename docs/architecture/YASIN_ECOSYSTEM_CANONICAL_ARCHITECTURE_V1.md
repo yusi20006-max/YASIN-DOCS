@@ -1,18 +1,18 @@
-# YASIN Ecosystem — Canonical Architecture v1
+# Yasin Ecosystem — Canonical Architecture v1
 
-> Canonical architecture baseline for the Yasin ecosystem. This document is intended to give a new engineer or AI agent enough context to understand project roles, ownership, boundaries, dependencies, operational control, and integration rules before modifying code.
+> Canonical architecture baseline for the Yasin ecosystem. This document gives engineers and AI coding agents the system-level model for project roles, ownership, boundaries, dependencies, operational control, and integration rules.
 
-- Status: Canonical Draft v1
-- Date: 2026-08-10
-- Evidence policy: confirmed source-level relationships are distinguished from inferred and future relationships.
+- Status: Canonical Draft v1.1
+- Date: 2026-08-14
+- Evidence policy: confirmed source-level relationships are distinguished from intended architecture, proposed integrations, and unresolved decisions.
 
 ## 1. Executive Summary
 
-Yasin is a multi-project ecosystem, not a monolithic application. Its current architecture separates five major concerns:
+Yasin is a multi-project ecosystem, not a monolithic application. The architecture separates five major concerns:
 
 1. **Core runtime** — Yasin-Core provides generic runtime and SDK foundations.
 2. **Agent execution** — Yasin-Agent provides agent/workflow execution on top of Core.
-3. **AI platform** — Yasin-AI provides AI runtime, knowledge, durable memory, API/service, extensions, and observability capabilities.
+3. **AI platform** — Yasin-AI is the **canonical AI platform for the ecosystem**. It owns shared AI capabilities such as model/provider routing, inference-facing services, knowledge, embeddings, RAG primitives, durable AI memory, AI extensions, AI observability, and AI-facing APIs/contracts.
 4. **Control/operations** — YasinHub provides ecosystem lifecycle control, status, health, and operational integration.
 5. **Unified user interface** — YasinCLI provides the user-facing command surface and ecosystem orchestration.
 
@@ -22,7 +22,11 @@ Content applications form another family:
 - YasinFeed — general content aggregation/processing/publishing platform.
 - YasinPress — specialized Persian-news publishing automation.
 
-These projects share ecosystem operations but do not automatically share business logic, storage, or AI infrastructure.
+### Architectural intent for AI
+
+Yasin-AI is independent in **runtime ownership** but central in **AI capability ownership**. Applications and agent systems must not recreate ecosystem-wide AI infrastructure independently when the capability belongs in Yasin-AI. They should consume Yasin-AI through explicit, versioned public contracts rather than importing private implementation modules.
+
+This is a target architectural direction being formalized now. Existing local provider abstractions in Relay/Feed/Press remain valid until their migration contracts are explicitly introduced.
 
 ## 2. Canonical Layer Model
 
@@ -45,67 +49,101 @@ USER / OPERATOR
         │        │        │
         ▼        ▼        ▼
       Core     Agent    Applications
-                         │
-                   ┌─────┼──────────┐
-                   ▼     ▼          ▼
-                 Relay  Feed      Press
-
-              Yasin-AI
-      ┌──────────┼──────────┐
-      ▼          ▼          ▼
-  Knowledge    Memory    API/Runtime
+        │        │          │
+        │        │     ┌────┼────┐
+        │        │     ▼    ▼    ▼
+        │        │   Relay Feed Press
+        │        │     │    │    │
+        └────────┼─────┴────┴────┘
+                 │
+                 ▼
+        AI capability contracts
+                 │
+                 ▼
+        ┌─────────────────────┐
+        │      Yasin-AI       │
+        │ Canonical AI Plane  │
+        ├─────────────────────┤
+        │ Model/Provider      │
+        │ Inference Services  │
+        │ Knowledge / RAG     │
+        │ Embeddings          │
+        │ Durable AI Memory   │
+        │ AI Extensions       │
+        │ AI Observability    │
+        │ AI API / SDK        │
+        └─────────────────────┘
 ```
 
-Yasin-AI is currently an independent platform boundary. A direct AI → Core dependency is **not established** by the audit evidence and must not be invented.
+Yasin-AI is not required to import YasinHub in order to execute. YasinHub controls and observes it through public operational boundaries.
 
 ## 3. Project Responsibility Matrix
 
-| Project | Primary responsibility | Operationally controlled by | Confirmed direct dependencies |
+| Project | Primary responsibility | Operationally controlled by | AI relationship |
 |---|---|---|---|
-| Yasin-Core | Generic runtime + SDK foundation | Hub / CLI | — |
-| Yasin-Agent | Agent/workflow execution | Hub / CLI | Yasin-Core |
-| Yasin-AI | AI runtime, knowledge, memory, API, extensions, observability | Ecosystem operations | Direct Core edge not established |
-| YasinHub | Control + observability + lifecycle operations | Operator / CLI | Core SDK, Agent SDK |
-| YasinCLI | Unified UX + ecosystem orchestration | Operator | Core/Agent/Hub/Relay adapters |
-| YasinRelay | Telegram/content processing/publishing | Hub / CLI | AIProcessor abstraction |
-| YasinFeed | General content aggregation/processing/publishing | Hub / CLI | Provider adapters |
-| YasinPress | Specialized Persian news automation | Hub / CLI | Optional Cloudflare AI integration |
+| `Yasin-Core` | Generic runtime + SDK foundation | Hub / CLI | May consume AI contracts; must not own ecosystem-wide AI infrastructure |
+| `Yasin-Agent` | Agent/workflow execution | Hub / CLI | Consumes Yasin-AI capabilities through public contracts where AI is required |
+| `Yasin-AI` | Canonical ecosystem AI platform | Hub / CLI | Owns shared AI capabilities |
+| `YasinHub` | Control + observability + lifecycle | Operator / CLI | Controls/observes AI through public operational contracts |
+| `YasinCLI` | Unified UX + ecosystem orchestration | Operator | Provides user-facing access to AI through adapters, not duplicated internals |
+| `YasinRelay` | Content ingestion/transformation/publishing | Hub / CLI | Uses AI capability contract; local provider abstraction is transitional |
+| `YasinFeed` | General content aggregation/processing/publishing | Hub / CLI | Uses AI capability contract; provider adapters are transitional |
+| `YasinPress` | Specialized Persian news automation | Hub / CLI | Uses AI capability contract; local provider integration is transitional |
 
-## 4. Confirmed Dependency Graph
+## 4. Dependency and Integration Model
+
+The ecosystem distinguishes **runtime dependency**, **control relationship**, and **capability consumption**.
+
+```text
+Runtime dependency:
+Agent ─────→ Core
+
+Control relationship:
+CLI ─────→ Hub ─────→ project runtimes
+
+AI capability consumption:
+Core / Agent / Relay / Feed / Press / future services
+                  │
+                  ▼
+        versioned AI contract
+                  │
+                  ▼
+              Yasin-AI
+```
+
+Consuming Yasin-AI does not imply importing its private Python modules. The intended boundary is a public API/SDK/protocol/provider contract.
+
+## 5. Confirmed vs Target Relationships
+
+The following distinction is mandatory:
+
+- **Confirmed** — backed by repository/source evidence today.
+- **Target** — intentional ecosystem architecture that implementation must converge toward.
+- **Proposed** — candidate design not yet selected.
+- **Unresolved** — requires a decision or contract before implementation.
+
+### Confirmed today
 
 ```text
 Yasin-Agent ───────────────→ Yasin-Core
-
 YasinHub ──────────────────→ Yasin-Core SDK
 YasinHub ──────────────────→ Yasin-Agent SDK
-
-YasinCLI ──────────────────→ ecosystem adapters
-                              ├─ Core
-                              ├─ Agent
-                              ├─ Hub
-                              └─ Relay
 ```
 
-Operational relationship:
+### Target architecture
 
 ```text
-Operator → YasinCLI → YasinHub → {Core, Agent, Relay, Feed, Press, AI, ...}
+Yasin-AI = canonical ecosystem AI capability platform
+
+Yasin-Agent ──AI contract──→ Yasin-AI
+YasinRelay ───AI contract──→ Yasin-AI
+YasinFeed ────AI contract──→ Yasin-AI
+YasinPress ───AI contract──→ Yasin-AI
+YasinCLI ─────AI adapter────→ Yasin-AI
+YasinHub ─────control/report→ Yasin-AI
 ```
 
-Operational control does not mean every project imports Hub.
-
-## 5. Explicitly Unconfirmed Relationships
-
-Until source evidence and an explicit contract exist, do not document these as dependencies:
-
-```text
-Yasin-AI → Yasin-Core
-Yasin-Relay → Yasin-AI
-Yasin-Feed → Yasin-AI
-Yasin-Press → Yasin-AI
-Shared ecosystem database → all applications
-Global event bus → all applications
-```
+These target edges must be implemented only through explicit public contracts and compatibility rules.
 
 ## 6. Yasin-Core
 
@@ -115,15 +153,16 @@ Provide reusable runtime and SDK foundations for the ecosystem.
 
 ### Boundary
 
-Core is a foundation layer. Higher-level application concerns must not be pushed into Core merely for convenience.
+Core is a foundation layer. Higher-level AI platform concerns belong in Yasin-AI rather than being duplicated inside Core.
 
 ```text
 Core → runtime / SDK foundations
 Core ✕ Hub internals
-Core ✕ Press business logic
-Core ✕ Feed business logic
-Core ✕ Relay business logic
+Core ✕ application business logic
+Core ✕ duplicate ecosystem-wide AI provider infrastructure
 ```
+
+Core may expose generic execution/tool/provider contracts that allow integration with Yasin-AI, but Core does not become the owner of Yasin-AI functionality.
 
 ## 7. Yasin-Agent
 
@@ -135,45 +174,69 @@ Provide agent and workflow execution capabilities.
 
 The audit confirms Agent → Core. Agent is therefore a runtime/application layer built on the generic Core foundation.
 
+### AI relationship
+
+Agent owns planning/execution semantics, not the ecosystem AI platform. When it needs model inference, knowledge, memory, embeddings, or other shared AI capabilities, the target architecture is to consume Yasin-AI through a public contract.
+
 ```text
 Yasin-Agent
-     ↓
-Yasin-Core
+   ├── execution/workflows
+   └── AI capability contract
+                 ↓
+             Yasin-AI
 ```
 
-Agent should expose stable public contracts to higher-level tooling rather than require Hub internals.
-
-## 8. Yasin-AI
+## 8. Yasin-AI — Canonical AI Platform
 
 ### Mission
 
-Provide an AI platform containing:
+Yasin-AI is the central AI capability platform of the Yasin ecosystem. Its purpose is to prevent every project from independently implementing model routing, provider management, inference services, knowledge/RAG, embeddings, durable AI memory, AI extensions, evaluation/observability, and related AI infrastructure.
 
-- runtime/module orchestration;
-- knowledge retrieval, embeddings, and graph/reasoning primitives;
-- durable memory and storage;
-- developer/plugin extension contracts;
-- transport-neutral API/service layer;
-- observability primitives;
-- deployment configuration.
+### Ownership
+
+Yasin-AI owns:
+
+- model/provider abstraction and routing;
+- inference-facing AI services;
+- prompts and AI execution policies where platform-owned;
+- embeddings and semantic retrieval primitives;
+- knowledge/RAG capabilities;
+- durable AI memory;
+- AI extension/plugin contracts;
+- AI-specific observability and diagnostics;
+- AI service/API/SDK contracts;
+- provider fallback, health, and reliability policies where centralized by the platform.
+
+### Non-ownership
+
+Yasin-AI does **not** own:
+
+- application business logic;
+- news aggregation rules;
+- Telegram/Eitaa publishing workflows;
+- ecosystem lifecycle orchestration;
+- the generic runtime foundation;
+- agent workflow semantics.
+
+### Independence rule
+
+Yasin-AI is independently runnable and must not require Hub, CLI, Feed, Press, Relay, or Agent internals to execute its core AI capabilities.
+
+At the same time, it is the **canonical provider of shared AI capabilities** for those projects through public contracts.
 
 ### Persistence
 
-SQLite is the default local persistence mechanism for memory and semantic indexes. This is platform-owned durable state and is distinct from application-local state in Feed, Press, or Relay.
+SQLite may remain the default local persistence mechanism for Yasin-AI memory and semantic indexes. This platform-owned durable state is distinct from application-local state in Feed, Press, Relay, and other applications.
 
 ### Plugin security
 
-Current plugin execution is trusted/in-process. Remote untrusted execution is not established as supported; sandboxing and authorization remain future security concerns.
-
-### Version note
-
-The audited repository showed a README production-release/package-version mismatch. This is a release-management issue and should be resolved independently of ecosystem architecture.
+Current plugin execution is trusted/in-process. Remote untrusted execution is not established as supported. Sandboxing and stronger authorization remain separate security evolution work.
 
 ## 9. YasinHub
 
 ### Mission
 
-YasinHub is the ecosystem **control and observability plane**.
+YasinHub is the ecosystem control and observability plane.
 
 ### Responsibilities
 
@@ -182,13 +245,14 @@ YasinHub is the ecosystem **control and observability plane**.
 - lifecycle commands;
 - Core SDK integration;
 - Agent SDK integration;
-- Relay operational controls;
+- application operational controls;
+- AI platform operational controls/registration;
 - ecosystem registry;
 - dashboard/doctor-style operator visibility.
 
 ### Boundary
 
-Hub controls other projects but does not own their internal business logic.
+Hub controls projects but does not own their internal business logic or AI implementation.
 
 ```text
 Hub
@@ -196,7 +260,7 @@ Hub
 Project runtime
 ```
 
-A project should remain capable of executing its core business logic without importing Hub internals.
+Yasin-AI should expose an operational contract that lets Hub inspect health/capabilities/version and perform supported lifecycle operations without importing Yasin-AI internals.
 
 ## 10. YasinCLI
 
@@ -208,50 +272,31 @@ Provide a unified user-facing command surface across the ecosystem.
 
 YasinCLI is not a second implementation of each project's internals. It uses adapters and orchestration and delegates project-specific behavior to the appropriate boundary.
 
-### Relationship with Hub
-
-Hub already has a central control CLI. Therefore YasinCLI must not become a competing implementation of Hub's operational logic.
-
-Recommended hierarchy:
+For AI operations, the intended path is:
 
 ```text
 User
  ↓
 YasinCLI
  ↓
-Public SDK / API / Adapter
+AI adapter / Hub public API
  ↓
-YasinHub
- ↓
-Project runtimes
+Yasin-AI
 ```
 
-The current audit identified first-class adapters for Core, Agent, Hub, and Relay. Feed, Press, and AI should be treated as future adapter work until explicitly implemented.
+The CLI must not duplicate provider routing, memory, RAG, or model-management logic.
 
 ## 11. YasinRelay
 
 ### Mission
 
-Content ingestion, transformation, and publication pipeline with current Telegram → Eitaa orientation.
-
-### Pipeline
-
-```text
-Telegram → Collector → Normalizer → Validator → Duplicate Detection
-          → AIProcessor → Media Processor → Publisher → Eitaa
-```
+Content ingestion, transformation, and publication pipeline.
 
 ### AI boundary
 
-Relay owns an `AIProcessor` abstraction. Providers can be replaced without rewriting the pipeline. This abstraction is deliberately separate from Yasin-AI until an explicit integration contract is designed.
+Relay currently owns an `AIProcessor` abstraction. This remains a valid application boundary during migration. The target architecture is for the abstraction to delegate to Yasin-AI through a versioned AI capability contract when the contract is implemented.
 
-### Storage
-
-Relay SQLite is operational pipeline state, not ecosystem-wide memory.
-
-### Events
-
-Relay events are currently internal pipeline events, not a confirmed global ecosystem event bus.
+Relay must retain ownership of content pipeline semantics; Yasin-AI must not absorb Relay business logic.
 
 ## 12. YasinFeed
 
@@ -259,63 +304,64 @@ Relay events are currently internal pipeline events, not a confirmed global ecos
 
 General-purpose content aggregation, processing, storage, rewriting, and publishing.
 
-### Outputs
+### AI boundary
 
-- RSS;
-- PWA/API JSON;
-- Eitaa.
+Feed owns its application pipeline. AI rewriting, translation, classification, summarization, and related intelligence should converge on Yasin-AI capability contracts rather than proliferating independent provider implementations.
 
-Feed owns its application pipeline; ecosystem lifecycle is externalized to Hub/CLI.
-
-Feed has provider-specific AI/rewrite extension points. These remain adapters until a deliberate shared AI contract exists.
+Feed remains independently runnable.
 
 ## 13. YasinPress
 
 ### Mission
 
-Specialized Persian-news publishing automation, primarily for Eitaa.
+Specialized Persian-news publishing automation.
 
-### Pipeline
+### AI boundary
 
-```text
-RSS → Collection → Duplicate Detection → Age/Priority/Category
-    → Optional Cloudflare Workers AI → Builder/Formatter/Tags
-    → Durable Queue → Rate Limiter → Eitaa
-```
+Press owns news-specific policy and publishing logic. AI tasks such as rewriting, classification assistance, summarization, prioritization assistance, or model/provider routing should converge on Yasin-AI through explicit contracts.
 
-### Relationship to Feed
-
-Feed and Press overlap in RSS/news functionality but currently represent distinct product boundaries. A future shared content-platform layer is an architectural opportunity, not a current dependency.
+Existing optional/local AI integrations remain valid until migration work is completed.
 
 ## 14. Storage Architecture
 
 There is intentionally no confirmed shared application database.
 
 ```text
-Yasin-AI    → durable platform memory / semantic indexes
+Yasin-AI    → durable platform AI memory / semantic indexes
 YasinRelay  → pipeline-state SQLite
 YasinFeed   → application storage
 YasinPress  → application-state SQLite
 ```
 
-A shared datastore requires an explicit ADR and contract. It must not arise through accidental filesystem/database coupling.
+Yasin-AI memory must not silently become a shared application database. If ecosystem-wide memory is introduced, it requires an explicit contract and ADR.
 
 ## 15. AI Provider Architecture
 
-Current capability is distributed:
+The target architecture centralizes ecosystem-wide AI capability ownership in Yasin-AI:
 
 ```text
-YasinRelay → AIProcessor
-YasinFeed  → provider adapters
-YasinPress → optional Cloudflare Workers AI
-Yasin-AI   → AI platform
+                    Yasin-AI
+                       │
+              AI Provider Gateway
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+      Cloud APIs    Local Models   Other Providers
+          │            │            │
+          └────────────┼────────────┘
+                       ▼
+             Common AI capability API
+                       ▲
+          ┌────────────┼────────────┐
+          │            │            │
+       Agent        Feed/Press    Relay
 ```
 
-Do not collapse these into a single provider architecture until a shared contract is deliberately designed.
+Provider implementations may remain local during migration, but new ecosystem-wide provider logic should not be duplicated in application repositories when it belongs in Yasin-AI.
 
 ## 16. Event Architecture
 
-Current confirmed scopes:
+Current confirmed scopes remain:
 
 ```text
 Relay internal events → local pipeline scope
@@ -323,7 +369,7 @@ Hub status contract   → ecosystem operational scope
 Project SDK/API       → explicit control scope
 ```
 
-There is no confirmed global event bus. A future bus requires schema/versioning, delivery semantics, retries, idempotency, security, ownership, and an ADR.
+There is no confirmed global event bus. Yasin-AI may expose AI lifecycle/usage events through its own contract, but a global ecosystem bus requires schema/versioning, delivery semantics, retries, idempotency, security, ownership, and an ADR.
 
 ## 17. Security Boundaries
 
@@ -331,12 +377,12 @@ Security responsibilities remain local to each boundary:
 
 - Core: runtime security contracts;
 - Agent: execution/tool security;
-- AI: plugin trust, API/service security, memory access;
+- AI: provider credentials, plugin trust, AI API/service security, memory access;
 - Hub: operator/control authorization;
 - CLI: local credential/config handling;
 - Feed/Press/Relay: provider credentials and publishing permissions.
 
-No project should assume another project's internal security model is automatically inherited.
+Centralizing AI capabilities in Yasin-AI does not mean centralizing every project's authorization model.
 
 ## 18. Lifecycle Model
 
@@ -347,7 +393,7 @@ YasinHub
    ↓
 start / stop / restart / health / doctor
    ↓
-Project-specific runtime
+Yasin-AI and project-specific runtimes
 ```
 
 The project owns execution semantics; Hub owns ecosystem-level operational coordination.
@@ -357,21 +403,27 @@ The project owns execution semantics; Hub owns ecosystem-level operational coord
 ### Allowed
 
 ```text
-Application → public platform SDK
-Hub → public project SDK
-CLI → adapters / public APIs
+Application → public AI capability contract → Yasin-AI
 Agent → Core
+Agent → public AI capability contract → Yasin-AI
+Hub → public project/AI SDK or API
+CLI → adapters / public APIs
 ```
 
-### Discouraged / prohibited without explicit approval
+### Discouraged / prohibited without explicit contract
 
 ```text
 Core → Hub
-Core → Press/Feed/Relay
+Core → application internals
 Agent → Hub internals
 Project → Hub internal modules
+Project → Yasin-AI private modules
 Shared database → implicit cross-project coupling
 ```
+
+### AI rule
+
+If a capability is ecosystem-wide AI infrastructure, implement it in Yasin-AI first and expose it through a public contract. Do not create parallel provider routers, shared AI memory systems, or duplicate AI platform infrastructure inside Feed/Press/Relay/Agent unless there is an explicit documented exception.
 
 ## 20. Canonical Terms
 
@@ -380,45 +432,45 @@ Shared database → implicit cross-project coupling
 | Runtime Plane | Execution logic of an individual project |
 | Control Plane | Ecosystem lifecycle and operational coordination |
 | Observability Plane | Status, health, metrics, and diagnostics |
+| AI Plane | Shared AI capabilities owned by Yasin-AI |
 | Platform | Reusable capability boundary such as Core or AI |
 | Application | Product-specific pipeline such as Feed, Press, or Relay |
 | Adapter | Integration boundary around another service/provider |
 | Operational State | Local state required to run a project |
 | Ecosystem Memory | Shared durable memory only if explicitly introduced |
+| AI Capability Contract | Versioned public interface through which projects consume Yasin-AI |
 
-## 21. Current Canonical Graph
+## 21. Current-to-Target Graph
 
 ```text
-                              USER
-                               │
-                               ▼
-                         ┌───────────┐
-                         │ YasinCLI  │
-                         └─────┬─────┘
-                               │
-                               ▼
-                         ┌───────────┐
-                         │ YasinHub  │
-                         │ Control + │
-                         │ Observe   │
-                         └─┬──┬──┬──┘
-                           │  │  │
-                           │  │  └──────── lifecycle ─────────┐
-                           │  │                               │
-                           ▼  ▼                               ▼
-                        Core Agent                   Relay / Feed / Press
-                           │                               │
-                           └──────────────┐                │
-                                          ▼                ▼
-                                     Applications / Services
-
-                         ┌────────────────────────┐
-                         │       Yasin-AI         │
-                         │ Independent AI Platform│
-                         ├──────────┬─────────────┤
-                         │Knowledge │ Memory      │
-                         │API/Run.  │ Extensions  │
-                         └──────────┴─────────────┘
+                              OPERATOR
+                                 │
+                                 ▼
+                           YasinCLI
+                                 │
+                                 ▼
+                           YasinHub
+                     Control / Status / Lifecycle
+                       ┌─────────┼─────────┐
+                       ▼         ▼         ▼
+                     Core      Agent   Applications
+                       │         │      ┌──┼──┐
+                       │         │      ▼  ▼  ▼
+                       │         │    Relay Feed Press
+                       │         │      │    │    │
+                       └─────────┼──────┴────┴────┘
+                                 │
+                         AI Capability Contract
+                                 │
+                                 ▼
+                           Yasin-AI
+                    Canonical AI Platform
+                ┌────────┼──────────┬────────┐
+                ▼        ▼          ▼        ▼
+             Models   Knowledge   Memory  AI API/SDK
+                │        │          │        │
+                └────────┴──────────┴────────┘
+                         AI Providers
 ```
 
 ## 22. Rules for a New AI Agent
@@ -427,55 +479,54 @@ Before changing any Yasin repository, an AI agent must:
 
 1. identify which project owns the requested behavior;
 2. inspect that project's public contracts and tests;
-3. classify the relationship as runtime, SDK/API, operational, or conceptual;
-4. avoid introducing a cross-project dependency without an explicit contract;
-5. preserve the distinction between local application state and ecosystem memory;
-6. use Hub for ecosystem operational coordination rather than importing Hub internals;
-7. use YasinCLI as the unified user-facing surface rather than duplicating project internals;
-8. preserve provider abstractions in Relay/Feed/Press;
-9. treat Yasin-AI as an independent platform unless a documented integration contract says otherwise;
-10. update YASIN-DOCS and an ADR when a cross-project architectural boundary changes.
+3. read this canonical architecture and the dependency matrix;
+4. classify the relationship as runtime, SDK/API, operational, or AI capability consumption;
+5. avoid introducing a cross-project dependency without an explicit contract;
+6. preserve the distinction between local application state and Yasin-AI platform memory;
+7. use Hub for ecosystem operational coordination rather than importing Hub internals;
+8. use YasinCLI as the unified user-facing surface rather than duplicating project internals;
+9. treat Yasin-AI as the canonical owner of ecosystem-wide AI infrastructure;
+10. consume Yasin-AI through public/versioned contracts, never private modules;
+11. preserve provider abstractions in Relay/Feed/Press while migrating them toward the canonical AI contract;
+12. update YASIN-DOCS and an ADR when a cross-project architectural boundary changes.
 
 ## 23. Open Architectural Decisions
 
-1. Should Yasin-AI integrate with Yasin-Core through a formal SDK contract?
-2. Should YasinCLI gain first-class adapters for AI, Feed, and Press?
-3. Should YasinFeed become a reusable content foundation for YasinPress?
-4. Should AI providers be centralized behind a provider gateway?
-5. Should the ecosystem introduce a global event bus?
-6. Should shared ecosystem memory be introduced separately from application-local state?
-7. What exact API/protocol should exist between YasinCLI and YasinHub?
-8. Which project should be authoritative for ecosystem registry metadata?
+1. What is the first versioned AI Capability Contract (API/SDK/protocol) exposed by Yasin-AI?
+2. Should Yasin-AI consume selected generic primitives from Yasin-Core, or remain implementation-independent?
+3. How should Yasin-Agent integrate with Yasin-AI while keeping execution semantics in Agent?
+4. Should YasinCLI gain a first-class Yasin-AI adapter?
+5. What exact operational API should YasinHub use for Yasin-AI?
+6. Which AI capabilities are mandatory for all applications versus optional?
+7. How should existing Relay/Feed/Press local providers migrate to Yasin-AI?
+8. Should Yasin-AI memory remain AI-platform memory or evolve into an explicitly shared ecosystem memory service?
+9. Should the ecosystem introduce a global event bus?
+10. What compatibility/version policy governs AI capability contracts?
 
-These are **open decisions**, not current dependencies.
+These are implementation/design decisions remaining after the strategic decision that **Yasin-AI is the canonical ecosystem AI platform**.
 
 ## 24. Documentation Governance
 
-This file is the canonical architecture baseline. Project-specific documents may provide deeper detail but must not contradict it without an ADR or explicit architecture update.
+This file is the canonical system-level architecture. Project-specific documents may provide deeper detail but must not contradict it without an ADR or explicit architecture update.
 
-Recommended hierarchy:
+When the AI platform boundary changes, update:
 
-```text
-YASIN-DOCS
-├── Canonical Ecosystem Architecture
-├── Dependency Matrix
-├── Project Architecture
-│   ├── Core
-│   ├── Agent
-│   ├── AI
-│   ├── Hub
-│   ├── CLI
-│   ├── Relay
-│   ├── Feed
-│   └── Press
-├── ADRs
-├── API Contracts
-├── Operational Runbooks
-└── Release / Compatibility Matrix
-```
+1. this canonical architecture;
+2. the dependency matrix;
+3. the Yasin-AI project architecture;
+4. the relevant API/compatibility contract;
+5. an ADR recording the decision and migration impact.
 
 ## 25. Status
 
-**Canonical Architecture v1 is established as the current documentation baseline.**
+**Canonical Architecture v1.1 establishes Yasin-AI as the canonical AI capability platform for the Yasin ecosystem.**
 
-The baseline is deliberately conservative: confirmed dependencies are recorded as dependencies, uncertain relationships are marked unresolved, and future architecture is represented as proposals/open questions rather than facts.
+The architecture intentionally separates:
+
+- Core runtime ownership;
+- Agent execution ownership;
+- AI capability ownership;
+- ecosystem control/observability;
+- application business logic.
+
+Implementation must converge toward this model through explicit public contracts rather than hidden cross-project coupling.
