@@ -14,6 +14,13 @@ The detailed architecture is maintained under [`docs/architecture/`](docs/archit
 
 Project-specific production architecture and roadmaps are maintained under [`docs/projects/`](docs/projects/).
 
+### YasinCoder
+
+- [YasinCoder Architecture & Production Roadmap](docs/projects/yasincoder/ARCHITECTURE-ROADMAP.md)
+- [YasinCoder Phase 2 AI Integration Audit](docs/projects/yasincoder/PHASE2-AI-INTEGRATION-AUDIT.md)
+
+YasinCoder is the canonical repository for the Yasin coding-agent application. Its local/cloud provider integration, coding workflows, project intelligence and web control plane should converge in that repository.
+
 ### YasinPress
 
 - [YasinPress Architecture & Production Roadmap](docs/projects/yasinpress/ARCHITECTURE-ROADMAP.md)
