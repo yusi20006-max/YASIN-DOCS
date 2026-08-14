@@ -1,6 +1,6 @@
 # ADR-0007: Yasin-AI Provider and AI Capability Boundary
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-09
 - Decision owners: Yasin ecosystem maintainers
 - Scope: Yasin-AI and AI/provider consumers
@@ -76,3 +76,11 @@ Exact provider interfaces and public symbols remain subject to source verificati
 - What is the canonical AI capability interface?
 - Which provider abstractions are stable public contracts?
 - Where should provider routing/fallback policy be owned?
+
+## Implementation status (2026-08-14)
+
+Accepted and implemented in **Yasin-AI v1.1.1**:
+- `yasinai.providers` (OpenAI, Anthropic, Local)
+- `yasinai.services` (Generation, Knowledge, RAG)
+- `yasinai.contracts` generation/RAG contracts
+- Credentials from environment only; no provider SDKs outside `yasinai/providers/`
