@@ -1,6 +1,6 @@
 # Yasin Projects
 
-This document is the current **repository registry**. It is based on the repositories visible in the GitHub account audit performed for YASIN-DOCS on 2026-08-09, with later source/runtime verification added where available.
+This document is the current **repository registry**. It is based on repository metadata, repository files, and source/runtime verification.
 
 > **Evidence rule:** repository metadata, repository files, and executed verification are authoritative for implementation claims. A project is not considered part of the core Yasin architecture merely because its name contains `Yasin`.
 
@@ -15,6 +15,7 @@ This document is the current **repository registry**. It is based on the reposit
 | `YasinRelay` | Content relay pipeline: fetch → process → publish | `main` | Public | README v2.0.0 |
 | `Yasinfeed` | Content collection, processing, and publishing engine | `main` | Public | README |
 | `Yasin-cli` | Cross-platform Node.js control/diagnostic CLI | `initial-setup` | Public | README |
+| `YasinCoder` | **Canonical coding-agent application; local/cloud AI provider gateway and coding workflows** | `master` | Public | Phase 1/2 runtime verification on 2026-08-14 |
 | `YASIN-DOCS` | Central ecosystem architecture/documentation hub | `main` | Public | This repository |
 
 ## Related / Supporting Repositories
@@ -26,97 +27,68 @@ This document is the current **repository registry**. It is based on the reposit
 | `TJC` | Termux/Jules workflow and scheduler CLI | `main` | Public | Developer automation tooling |
 | `Termux-BackupManager` | Termux backup/restore/migration tooling | `main` | Public | Developer/operations tooling |
 | `YasinJules` | Jules-related repository | `jules-2685192485704646500-c69dfdb7` | Public | Requires deeper audit before architectural classification |
-| `YasinCoder` | Yasin coding-related repository | `master` | Public | Requires deeper audit before architectural classification |
 | `Yasinpress` | Automated Persian news collection/AI processing/Eitaa publishing application | `main` | Private | Legacy/domain application; relationship to Rewrite requires evidence |
-| `YasinPress-Rewrite-` | Production-oriented Python news collection, processing and publishing application | `main` | Private | **Verified runnable baseline; 1.0.0; 114 tests pass; CLI/database/config health verified** |
+| `YasinPress-Rewrite-` | Production-oriented Python news collection, processing and publishing application | `main` | Private | Verified runnable baseline; 1.0.0; 114 tests pass |
 
-## Other Account Repositories
+## YasinCoder — Current Architectural Record
 
-The account also contains projects that are not currently classified as Yasin ecosystem components:
+YasinCoder is now classified as the **canonical coding-agent repository**. The implementation and local/cloud provider integration work should converge there rather than being split across separate coding-agent repositories.
 
-- `bpb-worker-panel`
-- `Nova-Proxy`
-- `hermes-webui`
-- `hermes-agent-mobile`
-- `Telegram-Mirror`
+Verified local stack:
 
-These are recorded separately so the ecosystem audit does not accidentally absorb unrelated infrastructure or experiments.
+```text
+YasinCoder
+   │
+   ├── Agent / project intelligence / command modules
+   │
+   └── AI provider layer
+          │
+          ├── Local gateway :18765
+          │      └── llama-server :18080
+          │             └── Qwen3 1.7B Q4_K_M
+          │
+          └── Gemini CLI
+```
+
+The 2026-08-14 verification established a working offline Qwen path, lifecycle controls, UI HTTP 200, status/log APIs, and successful `/api/qwen` generation. Gemini CLI availability was confirmed, but the configured `gemini-3.5-flash` account was quota-exhausted and returned HTTP 429 during generation.
+
+Detailed records:
+
+- [`YasinCoder Architecture & Roadmap`](docs/projects/yasincoder/ARCHITECTURE-ROADMAP.md)
+- [`YasinCoder Phase 2 AI Integration Audit`](docs/projects/yasincoder/PHASE2-AI-INTEGRATION-AUDIT.md)
 
 ## Important Findings
 
 ### 1. Yasin-Core is the clearest foundation boundary
+The current README describes Yasin-Core as the central runtime layer covering agents, API, compatibility, configuration, context, execution, memory, observability, plugins, providers, runtime, SDK, security, and storage.
 
-The current README explicitly describes Yasin-Core as the central runtime layer and lists agents, API, compatibility, configuration, context, execution, memory, observability, plugins, providers, runtime, SDK, security, and storage as major areas.
+### 2. Yasin-Agent has a duplicated/transitioning identity
+Its README describes `agent_platform` as a Yasin-AI component and says it provides the agent/workflow/tool/memory/context layer plus a Yasin-Core SDK adapter. Deeper source-level audit is still required before declaring the final boundary.
 
-### 2. Yasin-Agent currently has a duplicated/transitioning identity
-
-Its README describes `agent_platform` as a Yasin-AI component and says it provides the agent/workflow/tool/memory/context layer plus a Yasin-Core SDK adapter. This needs a deeper source-level audit before declaring whether Yasin-Agent is a fully independent runtime boundary or a separately packaged component of Yasin-AI.
-
-### 3. Yasin-AI is a broader application/runtime platform
-
-The README identifies runtime orchestration, API/services, knowledge/retrieval, persistent memory, developer/plugin interfaces, observability, deployment, and security as its boundaries. It explicitly states that plugin execution is trusted and in-process and that distributed HA storage and untrusted remote plugin sandboxing are not currently supported.
+### 3. Yasin-AI is the broader shared AI platform
+The ecosystem documentation defines Yasin-AI as the canonical owner of shared ecosystem-wide AI capabilities while preserving independent runtime ownership and requiring explicit public/versioned contracts.
 
 ### 4. YasinHub is currently small and concrete
-
-The current implementation is a status-oriented CLI/store: projects report status, a process checker checks live processes, a registry defines monitored projects, and a report combines status and process information. It should not currently be documented as a full orchestration platform without source-level evidence.
+It is a status-oriented CLI/store and should not be described as a full orchestration platform without source-level evidence.
 
 ### 5. YasinRelay is a complete content pipeline
-
-The documented pipeline is Collector → Normalizer → Validator → Duplicate Detection → AI Processor → Media Preparation → Publisher. It has SQLite storage, deduplication, scheduling, structured logging, configuration, a Go fetcher, and Eitaa publishing.
+Its documented pipeline is Collector → Normalizer → Validator → Duplicate Detection → AI Processor → Media Preparation → Publisher.
 
 ### 6. YasinFeed explicitly enforces boundaries
+Its README assigns collection/processing/publishing to Feed, service coordination to YasinHub, agent workflows to Yasin-Agent, and CLI behavior to YasinCLI. These statements require continued source validation.
 
-Its README states that it owns collection, processing, and publishing pipes, while YasinHub owns service management/coordination, Yasin-Agent owns agent workflows/decision-making/automation, and YasinCLI owns CLI behavior. These statements will be validated against code in the detailed audit.
+### 7. YasinCLI is a control-plane candidate
+The repository documents configuration, commands, doctor diagnostics, status, service management and plugins. Its non-main default branch requires care before production classification.
 
-### 7. YasinCLI is currently a Node.js control-plane candidate
+### 8. OpenFeed and FeedBridge have explicit lineage
+OpenFeed is a stable fetching core; FeedBridge documents a vendored fetcher derived from OpenFeed's `telemirror` engine. Exact historical relationships with YasinRelay require source/history audit.
 
-The repository documents configuration management, command registry, doctor diagnostics, status, service management, and plugins. Its default branch is currently `initial-setup`, so branch/version history must be considered before declaring it production-ready.
+### 9. YasinPress Rewrite is source/runtime verified
+A fresh Termux installation passed the complete test suite (`114 passed`) and verified CLI/database/config health. Live publishing remains pending fresh credential verification.
 
-### 8. OpenFeed and FeedBridge have an explicit lineage
-
-OpenFeed documents itself as a stable fetching core. FeedBridge documents a vendored fetcher derived from OpenFeed's `telemirror` engine and adds processing, AI, queueing, publishing, dashboard, plugins, and health monitoring. YasinRelay also documents a Go fetcher and a broader relay pipeline. The exact historical and current relationship among these repositories requires source/history audit before consolidation decisions.
-
-### 9. YasinPress Rewrite is now source/runtime verified
-
-A fresh clone of `YasinPress-Rewrite-` was installed on Termux using Python `3.14.6`. The editable package installation succeeded. After installing the development test dependency, the complete test suite passed:
-
-```text
-114 passed in 3.84s
-```
-
-The CLI was verified with:
-
-```text
-yasinpress version  -> 1.0.0
-yasinpress status   -> database: ok
-yasinpress health   -> database: ok
-yasinpress config   -> configuration: ok
-```
-
-The configured BBC Persian RSS endpoint was independently fetched successfully with HTTP `200` and valid RSS/XML content.
-
-A previous manual Eitaa smoke test had succeeded before the publishing credential was revoked. Therefore live publishing is currently **pending fresh credential verification** and must not be documented as currently operational until retested.
-
-Detailed evidence is recorded in [`docs/projects/yasinpress-rewrite.md`](docs/projects/yasinpress-rewrite.md).
-
-### 10. Yasinnews is not currently present under the audited GitHub account
-
-A repository lookup for `Yasinnews` returned no matching repository. It must therefore be treated as **not verified/present** rather than assumed to exist.
+### 10. Yasinnews is not currently verified
+A repository lookup returned no matching repository under the audited account.
 
 ## Next Registry Upgrade
 
-The next registry iteration should add or maintain:
-
-- canonical repository URL;
-- project category;
-- lifecycle status;
-- owner responsibility;
-- dependencies;
-- consumers;
-- interfaces;
-- data stores;
-- external integrations;
-- implementation confidence/evidence level;
-- cross-project impact.
-
-Detailed project records should remain in `docs/projects/`, with implementation claims tied to repository evidence.
+Maintain canonical repository URL, category, lifecycle, owner, dependencies, consumers, interfaces, stores, external integrations, evidence level, and cross-project impact. Detailed project records remain under `docs/projects/`.
