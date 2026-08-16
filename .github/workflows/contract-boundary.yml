@@ -1,0 +1,93 @@
+name: Ecosystem Quality Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/contract_boundary/**"
+      - "tools/architecture_boundary/**"
+      - "tools/integration_harness/**"
+      - "docs/testing/**"
+      - ".github/workflows/contract-boundary.yml"
+  pull_request:
+    paths:
+      - "tools/contract_boundary/**"
+      - "tools/architecture_boundary/**"
+      - "tools/integration_harness/**"
+      - "docs/testing/**"
+      - ".github/workflows/contract-boundary.yml"
+  workflow_dispatch:
+    inputs:
+      live_consumers:
+        description: "Also clone and scan live consumers (Relay/Feed/Press)"
+        required: false
+        default: "false"
+
+jobs:
+  unit-and-fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Contract boundary unit tests (#10)
+        run: pytest tools/contract_boundary/tests/ -q
+
+      - name: Architecture boundary unit tests (#12)
+        run: pytest tools/architecture_boundary/tests/ -q
+
+      - name: Integration harness unit tests (#11)
+        run: pytest tools/integration_harness/tests/ -q
+
+      - name: Scanner fixture good (expect PASS)
+        run: python -m tools.contract_boundary tools/contract_boundary/tests/fixtures/good
+
+      - name: Scanner fixture bad (expect FAIL exit 1)
+        run: |
+          if python -m tools.contract_boundary tools/contract_boundary/tests/fixtures/bad; then
+            echo "Expected non-zero exit for bad fixtures"
+            exit 1
+          fi
+          echo "Bad fixtures correctly failed"
+
+      - name: Architecture policy self-check
+        run: python -m tools.architecture_boundary
+
+  live-consumer-scan:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.live_consumers == 'true'
+    runs-on: ubuntu-latest
+    needs: unit-and-fixtures
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - yusi20006-max/YasinRelay
+          - yusi20006-max/Yasinfeed
+          - yusi20006-max/YasinPress-Rewrite-
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: docs-repo
+
+      - name: Checkout consumer
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo }}
+          path: consumer
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scan consumer for private imports
+        run: |
+          cd docs-repo
+          python -m tools.contract_boundary ../consumer
