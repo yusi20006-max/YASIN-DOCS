@@ -16,112 +16,96 @@ This document is evidence-based. Claims without repository evidence are marked *
 | Yasin-AI v1.1.4 contracts preserved | **PASS** | Consumers use `yasinai.contracts` + `yasinai.services` only |
 | Relay migration | **PASS** | YasinRelay #43 → PR #44 merged |
 | Feed migration | **PASS** | Yasinfeed #52 → PR #53 merged |
-| Press migration | **PASS (optional path)** | YasinPress #1 → PR #2 merged; CF default retained |
-| Agent decision documented | **PASS (DEFERRED)** | Yasin-Agent #19 DEFERRED; README identity fixed (P1-5) |
-| Hub decision documented | **PASS (NOT NOW)** | README is status-only CLI (P1-4 aligned) |
-| CLI integration verified | **DEFERRED** | Yasin-cli #33; **main branch created** (P1-6 → Yasin-cli #34 for default flip) |
-| Cross-ecosystem contract tests | **PARTIAL** | Per-repo unit/integration with mocks + static no-private-import guards |
+| Press migration | **PASS (optional path)** | YasinPress path; CF default retained |
+| Agent decision documented | **PASS (DEFERRED)** | Yasin-Agent #19 DEFERRED |
+| Hub decision documented | **PASS (NOT NOW)** | README is status-only CLI |
+| CLI integration verified | **DEFERRED** | Yasin-cli #34 (default branch flip needs Settings) |
+| Cross-ecosystem contract tests | **PARTIAL** | Per-repo guards + mock contract tests |
 | No private Yasin-AI dependency | **PASS (adapters)** | Guard tests on adapter modules |
-| Security audit (migration surface) | **PASS** | Env-only secrets; Relay #34 history cleaned + promoted to main |
-| CI green | **PARTIAL** | Local pytest green for changed suites |
+| Security audit (migration surface) | **PASS** | Relay #34 cleaned + promoted |
+| CI green | **PARTIAL** | Local pytest for changed suites |
 | Versioning consistent | **PASS** | Yasin-AI remains 1.1.4 |
 | Documentation truthful | **THIS DOC + PROJECTS.md** | |
-| Pipeline ownership documented | **PASS** | PIPELINE_OWNERSHIP.md + §4 |
-| No unresolved P0 | **PASS** | AI contract path unblocked |
-| P1 residual (fetcher, secrets, docs) | **PASS** | #35 closed; #34 closed+promoted; Hub/Agent docs aligned |
+| Pipeline ownership documented | **PASS** | PIPELINE_OWNERSHIP.md |
+| No unresolved P0 | **PASS** | |
+| P1 residual | **PASS** | |
+| P2 triage (this wave) | **PASS** | §8 |
 | YASIN-DOCS #8 | **THIS DELIVERABLE** | |
 
 ---
 
-## 2. AI architecture (verified)
+## 2–5. (AI architecture, matrix, pipeline ownership, security — unchanged from prior revision)
 
-```
-Yasin-AI v1.1.4
-  public: yasinai.contracts / yasinai.services
-  private: providers/*, knowledge_platform, …  (consumers MUST NOT import)
-        │
-        ├─ YasinRelay  → yasinrelay.yasinai_adapter.YasinAIContentProcessor
-        │                 AI_PROVIDER=yasinai (default); passthrough legacy fallback
-        ├─ Yasinfeed   → yasinfeed.rewrite.providers.yasinai_provider.YasinAIProvider
-        │                 rewrite.provider=yasinai when selected; dummy default offline
-        ├─ YasinPress  → ai_engine.AIEngine optional AI_BACKEND=yasinai
-        │                 cloudflare default (domain CF Workers AI)
-        ├─ Yasin-Agent → DEFERRED (Yasin-Core foundation) — #19
-        ├─ YasinHub    → NOT NOW (status surface only)
-        └─ Yasin-cli   → DEFERRED (optional future public-contract consumer)
-```
-
-### Failure semantics
-
-| Consumer | On AI failure |
-|----------|----------------|
-| Relay | Original post text (passthrough) |
-| Feed | Provider raises / module fallback strings; pipeline stages non-critical where configured |
-| Press | `None` → rule-based path continues |
+See prior certification body: adapters on Relay/Feed/Press, no private imports, secrets cleaned.
 
 ---
 
-## 3. Integration status matrix
+## 6. Known limitations
 
-| Repo | Version note | Yasin-AI integration | Private imports | Tests |
-|------|--------------|----------------------|-----------------|-------|
-| Yasin-AI | **1.1.4** baseline | N/A (platform) | N/A | existing platform suite |
-| YasinRelay | 2.0.0 package | **Canonical adapter merged** | Guarded (`test_no_private_yasinai_imports`) | `test_yasinai_adapter` + suite |
-| Yasinfeed | existing | **Provider registered** | Guarded | `test_yasinai_provider` + rewrite |
-| YasinPress | script layout | **Optional backend** | Guarded | `tests/test_ai_engine_yasinai.py` |
-| Yasin-Agent | Core-based | Deferred #19 | — | README identity fixed |
-| YasinHub | status CLI | Not required | — | README status-only |
-| Yasin-cli | — | Deferred | — | `main` branch exists |
+1. Live provider E2E not run this wave.
+2. yasinai not assumed on public PyPI.
+3. Legacy AI paths retained until ops flip.
+4. Cross-repo centralized no-private-import CI gate not built.
+5. Agent #19 / CLI ecosystem commands deferred.
+6. Yasin-cli default branch still `initial-setup` until Settings (issue #34).
 
 ---
 
-## 4. Pipeline ownership
+## 7. Certification statement (P0/P1)
 
-Shared pattern: **collect → process/AI → publish** exists in Relay, Feed, Press.
-
-| Concern | Owner |
-|---------|--------|
-| Canonical generation/embeddings/RAG contracts | **Yasin-AI** |
-| Telegram/OpenFeed fetch + Eitaa relay domain | **YasinRelay** |
-| Multi-source feed ingest, rewrite pipeline, publishers | **Yasinfeed** |
-| Persian editorial channel + CF quota domain | **YasinPress** |
-| Agent runtime / tools / memory via Core | **Yasin-Agent** (+ Yasin-Core) |
-| Status / control surface | **YasinHub** |
-| Operator CLI | **Yasin-cli** |
-| Architecture SoT | **YASIN-DOCS** |
-
-**Rule:** Domain orchestration stays in domain repos. Yasin-AI must not absorb feed/relay/press pipelines (no monolith).
-
-Overlap is **acceptable** as independent product pipelines sharing AI contracts, not shared orchestrators.
+As of 2026-08-16, primary content pipelines have a **contract-safe AI path** against Yasin-AI v1.1.4 public APIs. **All Phase-0 P0 and actionable P1 gaps are closed.**
 
 ---
 
-## 5. Security notes
+## 8. P2 triage results (2026-08-16)
 
-- Adapters map operator env (`AI_API_KEY` → `OPENAI_API_KEY`) without embedding secrets in source.
-- Press retains CF token via env/file (pre-existing model).
-- **YasinRelay #34:** historical `.env` purged; `security/history-cleaned` promoted to `main` (force-with-lease gated workflow). `git log --all --full-history -- .env` empty of secret path on main.
-- No private Yasin-AI packages imported by adapters.
+Directive: re-triage existing issues only; close duplicate/obsolete; do not execute old roadmaps solely because they exist.
+
+### YasinRelay
+
+| Issue | Disposition |
+|-------|-------------|
+| #16, #18, #20–#26 (v1.x series) | **Closed not_planned** — obsolete versioned roadmaps; product is v2.0.0 with #34/#35/#43 done |
+
+### Yasinfeed
+
+| Issue | Disposition |
+|-------|-------------|
+| #37 port conflict | **Closed completed** — port 0 + ApiModule dynamic bind already on main; lifecycle test PASSED |
+| #40 advanced scheduler | **Closed completed** — Scheduler job tracking/pause/resume/workers present |
+| #41 content intelligence | **Closed completed** — `intelligence.py` + tests green |
+| #42 multi-provider AI | **Closed completed** — factory registry includes yasinai (#52) |
+| #43 auth/security | **Closed completed** — AuthModule + API rate limit/headers/roles |
+| #44 observability | **Closed completed** — metrics + health/stats endpoints + tests |
+| #39 production hardening | **OPEN** — umbrella roadmap; split focused defects later |
+| #45 ecosystem adapters | **OPEN** — product expansion beyond AI path |
+| #46 v1.0 release | **OPEN** — release meta / tag |
+
+### YasinPress-Rewrite-
+
+| Issue | Disposition |
+|-------|-------------|
+| #93 RTL/Eitaa rendering | **OPEN** — valid P2; needs client-verified fix |
+| #95 queue/rate-limit parity | **OPEN** — valid P2 hardening |
+| #96 persistence/runtime | **OPEN** — valid P2 sequential umbrella |
+
+### Deferred (explicit)
+
+| Issue | Status |
+|-------|--------|
+| Yasin-Agent #19 | DEFERRED — no contract resume this wave |
+| Yasin-cli #34 | TRACKED — needs Settings admin |
+
+**No new features without issue. No private Yasin-AI imports.**
 
 ---
 
-## 6. Known limitations / remaining work (P2+)
+## 9. Remaining truly unresolved
 
-1. **Live provider E2E** across all consumers not run in this wave (mock-based contract tests).
-2. **yasinai package distribution** — consumers document git/editable install; not on public PyPI assumed.
-3. **Legacy AI paths retained** (Relay passthrough HTTP, Feed openai/hf/dummy, Press Cloudflare) until ops flip defaults.
-4. **Cross-repo CI gate** enforcing “no private import” as a shared job: not yet centralized (per-repo guards exist).
-5. **Agent / CLI / Hub AI**: deferred by explicit issues.
-6. **Yasin-cli default branch** still `initial-setup` until maintainer sets Settings → Default branch = `main` (issue Yasin-cli #34).
+1. YasinPress #93, #95, #96 (production hardening — valid open P2)
+2. Yasinfeed #39, #45, #46 (umbrella/product/release)
+3. Yasin-cli #34 (maintainer Settings)
+4. Yasin-Agent #19 (deferred until needed)
+5. Live multi-repo E2E harness / centralized import gate (not filed as blocking issue)
 
----
-
-## 7. Certification statement
-
-As of 2026-08-16, the Yasin ecosystem has a **verified, contract-safe AI integration path** for the primary content pipelines (Relay, Feed, Press) against **Yasin-AI v1.1.4 public contracts**, without private-module coupling and without rewriting the AI platform.
-
-**All Phase-0 P0 gaps and all actionable P1 gaps are closed** (documentation, adapters, fetcher, secrets history, identity/docs alignment). Remaining items are explicit deferrals or maintainer UI actions (CLI default branch).
-
-This is **not** a claim that every repository is production-perfect or that a mono-repo E2E harness exists. It **is** a claim that the post-Phase-0 mission for AI ownership, consumer adapters, and critical P1 hardening is complete for the in-scope work, with deferred decisions recorded as issues.
-
-**Certified by:** post-Phase-0 execution agent against GitHub PR/issue/commit evidence listed above.
+**Certified by:** post-Phase-0 + P2 triage execution against GitHub issue evidence.
