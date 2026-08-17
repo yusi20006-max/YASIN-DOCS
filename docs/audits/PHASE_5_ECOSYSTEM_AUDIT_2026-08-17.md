@@ -23,7 +23,7 @@ Yasin-AI main currently resolves to `f778338be03e8085e8cc7f82e54e4bfdd39b68dd`.
 | 5.1 PackageBuilder | PASS | cwd-independent resolution + regression coverage merged in Yasin-AI PR #179 |
 | 5.2 YasinHub security | PASS | shell execution path hardened; stale test updated and CI green |
 | 5.3 Security sweep | PASS | no dangerous `shell=True`, `os.system`, unsafe pickle/yaml/eval findings in audited repositories; no committed secrets found |
-| 5.4 Dependency/release consistency | PASS | release-tag policy documented; YasinFeed uses published `v1.1.4` dependency contract |
+| 5.4 Dependency/release consistency | PASS | release-tag policy documented; YasinFeed uses a documented unreleased commit pin (not the `v1.1.4` tag) per policy section 2 |
 | 5.5 CI/runtime matrix | PASS WITH P2 | Yasin-AI has direct Python 3.9–3.13 coverage; other Python repositories have narrower matrices; Yasin-cli is Node.js |
 | 5.6 Documentation/source of truth | PASS | Policy C and release dependency policy are now documented; existing ecosystem certification remains authoritative for declared scope |
 | 5.7 Cross-repository integration | PASS | public Yasin-AI contracts, consumer scans, offline E2E harness and integration smoke coverage are present and green in the controlled path |
@@ -53,7 +53,7 @@ Yasin-AI main currently resolves to `f778338be03e8085e8cc7f82e54e4bfdd39b68dd`.
 ### YasinFeed
 
 - Yasin-AI remains an optional provider dependency.
-- The dependency contract now follows the published Yasin-AI release policy and uses `v1.1.4` rather than an unreleased moving/main commit.
+- The dependency contract pins an unreleased Yasin-AI commit (`f778338be03e8085e8cc7f82e54e4bfdd39b68dd`), not the `v1.1.4` release tag. Per `RELEASE_DEPENDENCY_POLICY.md` section 2, this is permitted only when documented as an unreleased integration pin, and `Yasinfeed/pyproject.toml` now carries that documentation comment (corrected 2026-08-17).
 - Phase 5 release/dependency work merged through PR #59.
 
 ### YasinPress
@@ -121,6 +121,8 @@ Integration client classes remain public, tested and backward compatible, but ar
 The Yasin-AI release dependency policy now states that published consumers should use release tags, while full commit pins are reserved for explicitly documented unreleased integration work.
 
 The published `v1.1.4` tag is therefore treated as a release artifact, while newer commits on `main` are post-release development.
+
+Correction (2026-08-17, Issue #27 verification pass): an earlier version of this section stated that YasinFeed uses the published `v1.1.4` tag. Direct source verification shows YasinFeed's `pyproject.toml` pins commit `f778338` (a post-`v1.1.4` commit), not the tag itself. This is a policy-compliant unreleased integration pin, now explicitly documented as such in `Yasinfeed/pyproject.toml`, but it is not equivalent to consuming the released tag. This correction does not change the PASS disposition of gate 5.4, since an unreleased, documented pin is an accepted policy path.
 
 ---
 
