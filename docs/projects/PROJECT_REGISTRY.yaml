@@ -146,6 +146,17 @@ projects:
     consumers: []
     notes: "Uses rclone and Google Drive according to repository README."
 
+  - id: yasin-operations
+    name: Yasin-Operations
+    repository: yusi20006-max/Yasin-Operations
+    category: operations
+    role: "Modular Operations Agent: operations, diagnostics, health checks, service lifecycle management, runtime inspection, operational tooling, optional adapters/integrations"
+    status: newly-registered
+    architecture_status: provisional
+    depends_on: []
+    consumers: []
+    notes: "Registered 2026-08-17 (Issue #27). Independent and optional. Does not own Core AI capabilities (Yasin-AI), publishing/news-processing domain (YasinPress), or relay/feed transport (YasinRelay). Its absence must not break Yasin-AI, YasinPress, YasinRelay, or Hermes. No mandatory cross-repository dependency exists in either direction. Future integration direction Hermes -> Yasin-Operations -> Yasin-AI is documented as planned/optional only, not implemented. See ADR-0012."
+
 rules:
   - "Do not infer a dependency solely from project naming."
   - "Do not mark a planned relationship as implemented."
