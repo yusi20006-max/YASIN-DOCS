@@ -58,6 +58,12 @@ Its purpose is to give human developers and AI coding agents a single, structure
 | `YasinPress` | Specialized Persian-news publishing |
 | `YASIN-DOCS` | Canonical ecosystem documentation |
 
+**Optional operations layer** (not part of the canonical architecture diagram above, no mandatory dependency in either direction — see `docs/adr/ADR-0012-yasin-operations-boundary.md`):
+
+| Repository | Role |
+|---|---|
+| `Yasin-Operations` | Modular Operations Agent: diagnostics, health checks, service lifecycle, runtime inspection (independent, optional; registered 2026-08-17) |
+
 ## Documentation Structure
 
 ```text
