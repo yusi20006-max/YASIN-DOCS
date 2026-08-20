@@ -20,9 +20,9 @@ This is the human-readable companion to `PROJECT_REGISTRY.yaml`.
 
 | Project | Repository | Category | Current documented role | Confidence | Dependency status |
 |---|---|---|---|---|---|
-| Yasin-Operations | `yusi20006-max/Yasin-Operations` | Operations | Modular Operations Agent: operations, diagnostics, health checks, service lifecycle management, runtime inspection, operational tooling, optional adapters/integrations | Provisional | Independent — optional, no mandatory cross-repository dependency in either direction |
+| Yasin-Operations | `yusi20006-max/Yasin-Operations` | Operations | Modular Operations Agent: operations, diagnostics, health checks, service lifecycle management, runtime inspection, operational tooling, optional adapters/integrations | Verified | Independent — optional, no mandatory cross-repository dependency in either direction |
 
-Yasin-Operations is a newly registered, independent project (registered 2026-08-17, Issue #27). It does not own Core AI capabilities (owned by Yasin-AI), publishing/news-processing domain (owned by YasinPress), or relay/feed transport responsibilities (owned by YasinRelay). Its absence must not break Yasin-AI, YasinPress, YasinRelay, or Hermes. See `docs/adr/ADR-0012-yasin-operations-boundary.md` for the full boundary decision and `docs/audits/ACTIVITY_LOG_2026-08-17.md` for verification evidence.
+Yasin-Operations is an active, independently deployable project whose repository-local v0.1.0 audit found no unresolved Critical/High implementation finding. It does not own Core AI capabilities (owned by Yasin-AI), publishing/news-processing domain (owned by YasinPress), or relay/feed transport responsibilities (owned by YasinRelay). Its absence must not break Yasin-AI, YasinPress, YasinRelay, or Hermes. See `docs/adr/ADR-0012-yasin-operations-boundary.md` and the repository-local final audit record in `yusi20006-max/Yasin-Operations/docs/FINAL_PRODUCTION_AUDIT_v0.1.0.md`.
 
 ## Related / Supporting Projects
 
