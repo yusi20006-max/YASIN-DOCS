@@ -20,12 +20,14 @@ This document is the current **repository registry**. It is based on repository 
 | `Yasinfeed` | Content collection, processing, and publishing engine | `main` | Public | README; **YasinAIProvider registered** (#52) |
 | `Yasin-cli` | Cross-platform Node.js control/diagnostic CLI | `initial-setup` (main branch exists; set default via #34) | Public | README |
 | `YasinCoder` | **Canonical coding-agent application; local/cloud AI provider gateway and coding workflows** | `master` | Public | Phase 1/2 runtime verification on 2026-08-14 |
+| `Yasin-MCP` | **Canonical MCP server / AI access layer for the Yasin ecosystem** | `main` | Public | Repository README + Operations integration record; read-only ecosystem access boundary |
 | `YASIN-DOCS` | Central ecosystem architecture/documentation hub | `main` | Public | This repository |
 
 ## Related / Supporting Repositories
 
 | Repository | Verified role | Default branch | Visibility | Relationship |
 |---|---|---:|---|---|
+| `Yasin-Operations` | **Independently deployable Operations layer; typed Executor/safety boundary and local JSONL gateway; not an MCP server** | `main` | Public | Yasin-MCP consumes its read-only gateway through a subprocess adapter; Hermes connects to Yasin-MCP, not directly to Yasin-Operations |
 | `Openfeed` | Stable Go Telegram public-channel fetcher + local API/PWA | `main` | Public | Fetching foundation referenced by FeedBridge/YasinRelay history |
 | `Feedbridge` | Self-contained Telegram content bridge with AI and Eitaa publishing | `main` | Public | Downstream content bridge; embeds OpenFeed-derived fetcher |
 | `TJC` | Termux/Jules workflow and scheduler CLI | `main` | Public | Developer automation tooling |
@@ -35,6 +37,30 @@ This document is the current **repository registry**. It is based on repository 
 | `YasinPress-Rewrite-` | Production-oriented Python news collection, processing and publishing application | `main` | Public* | Verified runnable baseline; **1.0.0**; optional `AI_BACKEND=yasinai`; 114 tests pass |
 
 \* Registry visibility may lag; treat code evidence as authoritative.
+
+## Yasin-MCP / Yasin-Operations / Hermes boundary
+
+The canonical integration path is:
+
+```text
+Hermes / MCP client
+        │
+        │ MCP
+        ▼
+   Yasin-MCP
+        │
+        │ read-only Operations adapter
+        │ JSONL over `yasin-operations gateway`
+        ▼
+Yasin-Operations
+        │
+        ▼
+Typed Executor / safety boundary
+```
+
+`Yasin-Operations` is **not** an MCP server. Its local JSONL gateway is a separate transport and must not be described as MCP. `Yasin-MCP` owns the MCP protocol boundary and exposes a fixed read-only Operations toolset. Hermes should register/connect to `Yasin-MCP`, not attempt to register `Yasin-Operations` as an MCP server.
+
+Detailed cross-project record: [`docs/projects/YASIN-MCP-OPERATIONS-HERMES.md`](docs/projects/YASIN-MCP-OPERATIONS-HERMES.md).
 
 ## Yasin-AI integration status (post Phase-0)
 
@@ -83,6 +109,8 @@ Detailed records remain under `docs/projects/yasincoder/`.
 6. **YasinFeed** has Yasin-AI provider path registered.
 7. **Yasin-cli** has a `main` branch; default remains `initial-setup` until maintainer flips settings (issue #34).
 8. Pipeline overlap (Relay / Feed / Press) is **acceptable** as independent domain products sharing AI contracts only.
+9. **Yasin-MCP owns the MCP boundary; Yasin-Operations remains an independently deployable Operations provider and JSONL gateway.**
+10. **Hermes is an external MCP client of Yasin-MCP, not a dependency or direct MCP client of Yasin-Operations.**
 
 ## Next Registry Upgrade
 
