@@ -27,6 +27,12 @@ YasinCoder is the canonical repository for the Yasin coding-agent application. I
 
 This roadmap is the shared target architecture for the YasinPress news-ingestion, article-intelligence, AI, queue, publishing, monitoring, PWA, scheduler and recovery pipeline. It explicitly distinguishes repository-verified implementation from planned production behavior.
 
+### Slack Integration
+
+- [Yasin ↔ Slack Integration Architecture](docs/architecture/YASIN_SLACK_INTEGRATION.md)
+
+Slack is defined as a Human ↔ Yasin operational interface for communication, notifications, alerts, controlled commands, and agent interaction. YasinHub remains the Control Plane and source of truth; Slack must not bypass YasinHub to directly control the Agent Runtime.
+
 ## Planned Architecture Coverage
 
 The architecture documentation covers:
