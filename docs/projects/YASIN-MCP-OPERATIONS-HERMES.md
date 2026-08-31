@@ -1,115 +1,195 @@
-# Yasin-MCP ↔ Yasin-Operations ↔ Hermes
+# Yasin Core Stack ↔ Operator Stack Architecture
 
-**Status:** CONFIRMED architecture record  
-**Date:** 2026-08-20  
-**Scope:** Yasin-MCP, Yasin-Operations, Hermes integration boundary
+**Status:** CONFIRMED ecosystem architecture record  
+**Date:** 2026-08-30  
+**Scope:** YasinHub, Yasin-Agent, Yasin-Core, Yasin-MCP, Yasin-Operations, Hermes, Telegram
 
-## 1. Canonical architecture
+## 1. Purpose
 
-`Yasin-MCP` is the MCP server / AI access layer for the Yasin ecosystem. `Yasin-Operations` is an independently deployable Operations component and is **not** itself an MCP server.
+Yasin has two complementary architectural paths with different responsibilities. They must remain separate.
 
-The intended integration path is:
+The **Yasin Core Stack** is the original application/runtime architecture and must continue to operate normally and independently.
 
-```text
-Hermes / other MCP client
-        │
-        │ MCP
-        ▼
-   Yasin-MCP
-        │
-        │ read-only Operations adapter
-        │ subprocess: yasin-operations gateway
-        │ JSONL stdin/stdout
-        ▼
-Yasin-Operations
-        │
-        ▼
-Hermes-facing typed adapter → Core Executor
-```
+The **Operator Stack** is an additional integration layer introduced for reporting, monitoring, diagnostics, and extra control through Telegram and Hermes. It must not replace, restructure, or become a runtime dependency of the Core Stack.
 
-Therefore, Hermes should connect to **Yasin-MCP**, not directly register `Yasin-Operations` as an MCP server.
+This separation is an architectural boundary, not merely an implementation preference.
 
-## 2. Yasin-MCP current implementation
+## 2. Yasin Core Stack — original architecture
 
-Repository: `yusi20006-max/Yasin-MCP`
-
-Verified repository description: standalone MCP server and AI access layer for the Yasin ecosystem.
-
-The repository README currently states that the project is in the bootstrap phase and that the MCP server runtime itself is not yet present in that repository snapshot. It also defines the package layout for the future server, protocol, capabilities, tools, resources, adapters, policies, errors, audit, and configuration layers.
-
-The repository defines an explicit read-only Phase-1 boundary: no repository mutation, deployment, lifecycle mutation, memory mutation, or arbitrary command execution. Existing Yasin projects must not become dependent on Yasin-MCP.
-
-Evidence model:
-
-- `CONFIRMED`: directly observed from an authoritative repository/runtime source.
-- `TARGET`: documented architecture or intended behavior not yet live-verified.
-- `PROPOSED`: future design suggestion.
-- `UNRESOLVED`: not established.
-
-## 3. Yasin-Operations current implementation
-
-Repository: `yusi20006-max/Yasin-Operations`
-
-Yasin-Operations currently provides:
-
-- Operations Core / Executor boundary.
-- Safety policy and typed operation contracts.
-- CLI lifecycle/status/health/diagnostics surfaces.
-- Optional Hermes-facing typed adapter.
-- A local JSONL gateway over stdin/stdout.
-
-It does **not** provide an MCP server, MCP discovery surface, or MCP listener. Its JSONL gateway must not be described as MCP.
-
-The current gateway schema is version `1` and is invoked as:
+The original Yasin architecture remains:
 
 ```text
-yasin-operations gateway
+                 YasinHub
+               Control Plane
+                    │
+                    ▼
+               Yasin-Agent
+               Agent Runtime
+                    │
+                    ▼
+                Yasin-Core
+          Core / Memory / State
+                    │
+             ┌──────┴──────┐
+             ▼             ▼
+        YasinRelay     other core
+                       Yasin components
 ```
 
-The gateway accepts line-delimited JSON on stdin and emits line-delimited JSON on stdout.
+This path represents the normal Yasin application/runtime flow.
 
-## 4. Existing Yasin-MCP Operations adapter
+### Core-stack rules
 
-Yasin-MCP already contains the intended adapter boundary for Operations. It deliberately does not import the `yasin_operations` Python package.
+- YasinHub remains the primary Control Plane for the Yasin ecosystem.
+- Yasin-Agent remains the primary Agent Runtime.
+- Yasin-Core remains the core foundation for shared core functionality, memory, state, and related runtime concerns.
+- Existing Yasin components continue to communicate through their established contracts.
+- The Core Stack must be usable without Hermes.
+- The Core Stack must be usable without Yasin-MCP.
+- The Core Stack must be usable without Yasin-Operations.
+- Adding the Operator Stack must not force changes to the normal Core Stack execution path unless an explicit future architecture decision says otherwise.
 
-Instead it starts the installed console executable:
+## 3. Operator Stack — additional architecture
+
+The newer operator/reporting architecture is:
 
 ```text
-yasin-operations gateway
+                    Telegram
+                       │
+                       ▼
+                    Hermes
+                 Operator Client
+                       │
+                       │ MCP
+                       ▼
+                  Yasin-MCP
+              MCP / AI Access Layer
+                       │
+                       │ read-only Operations adapter
+                       │ JSONL
+                       ▼
+              Yasin-Operations
+          Operations / Monitoring Layer
 ```
 
-and communicates with it using the existing JSONL contract.
+Its purpose is to provide an additional operator-facing interface for:
 
-The Operations adapter exposes four fixed, read-only MCP capabilities:
+- Telegram-based reporting.
+- Monitoring and diagnostics.
+- Health/status visibility.
+- Extra operational control through explicitly exposed capabilities.
+- Hermes-based interaction with the Yasin ecosystem.
 
-| MCP tool | Operations operation | Safety |
-|---|---|---|
-| `yasin_operations_list_services` | `list_services` | `read_only` |
-| `yasin_operations_service_status` | `service_status` | `read_only` |
-| `yasin_operations_health` | `health_check` | `read_only` |
-| `yasin_operations_diagnostics` | `diagnostics` | `read_only` |
+The Operator Stack is therefore an **overlay/integration layer**, not a replacement for the original Yasin architecture.
 
-There is intentionally no generic `invoke` / `execute` / caller-supplied operation path. The adapter hardcodes the allowed operation set and always sends `safety_class: read_only`.
+## 4. Exact ownership of the boundaries
 
-This creates two independent safety boundaries: Yasin-MCP restricts the exposed operation set, and Yasin-Operations independently validates the operation's declared safety class against its own capability contract.
+### YasinHub
 
-## 5. Availability behavior
+Owns the primary Yasin Control Plane and the normal management/orchestration surface of the Core Stack.
 
-Yasin-MCP checks for the `yasin-operations` executable before registering the Operations capability set.
+### Yasin-Agent
 
-If the executable is unavailable:
+Owns the primary Agent Runtime. It remains the normal execution environment for Yasin agents.
 
-- Yasin-MCP can still start.
-- Operations capabilities are not advertised.
-- Other MCP capabilities remain unaffected.
+### Yasin-Core
 
-If the executable disappears after registration, the adapter reports a structured unavailable-dependency error rather than crashing the MCP server.
+Owns the core shared runtime/foundation responsibilities, including the established memory/state architecture and core contracts.
 
-## 6. Hermes relationship
+### Yasin-MCP
 
-Hermes is an **MCP client** in this architecture.
+Owns the **MCP protocol boundary** for external AI/agent clients such as Hermes.
 
-The correct conceptual connection is:
+Yasin-MCP is the controlled gateway through which an MCP client can access explicitly exposed Yasin capabilities.
+
+### Yasin-Operations
+
+Owns the **Operations boundary**: operational execution semantics, safety policy, typed operation contracts, diagnostics, and its existing JSONL gateway.
+
+Yasin-Operations is independently usable and is **not an MCP server**.
+
+### Hermes
+
+Acts as an external/operator-side MCP client. Hermes is not part of the Core Stack and must not become a dependency of Yasin-Core, Yasin-Agent, YasinHub, or Yasin-Operations.
+
+### Telegram
+
+Is an operator-facing communication surface. It belongs to the Operator Stack and does not replace the YasinHub Control Plane.
+
+## 5. Integration between the two stacks
+
+The stacks may interact, but only through explicit boundaries:
+
+```text
+                 CORE STACK
+
+       YasinHub → Yasin-Agent → Yasin-Core
+            │
+            │
+            │ explicit controlled access
+            ▼
+       ┌─────────────────────────┐
+       │      OPERATOR STACK     │
+       │                         │
+       │ Telegram → Hermes       │
+       │              │          │
+       │              ▼ MCP      │
+       │          Yasin-MCP      │
+       │              │          │
+       │              ▼ JSONL    │
+       │      Yasin-Operations   │
+       └─────────────────────────┘
+```
+
+The existence of the Operator Stack does **not** mean that the Core Stack has been replaced by MCP, Hermes, or Operations.
+
+## 6. What must NOT happen
+
+The following architectural mixing is explicitly prohibited unless a future architecture decision changes it:
+
+```text
+❌ Hermes → Yasin-Agent as a replacement runtime path
+❌ Hermes → Yasin-Core directly
+❌ Hermes → Yasin-Operations as an MCP server
+❌ Yasin-Core → Hermes dependency
+❌ Yasin-Agent → Hermes dependency
+❌ YasinHub → Hermes dependency for normal operation
+❌ Core Stack → Yasin-MCP hard dependency
+❌ Core Stack → Yasin-Operations hard dependency
+❌ Treating JSONL as MCP
+❌ Treating Yasin-Operations as an MCP server
+❌ Moving normal agent execution from Yasin-Agent into Hermes
+```
+
+In particular, Hermes must not become the new Agent Runtime, and Yasin-MCP must not become the new Core Runtime.
+
+## 7. Failure isolation
+
+The two stacks must fail independently as much as practical.
+
+If Hermes is unavailable, the normal Yasin Core Stack must continue to work.
+
+If Telegram is unavailable, the normal Yasin Core Stack must continue to work.
+
+If Yasin-MCP is unavailable, the normal Yasin Core Stack must continue to work.
+
+If Yasin-Operations is unavailable, Yasin-MCP may hide or disable the Operations capability set while preserving other capabilities; the Core Stack must remain unaffected.
+
+This principle prevents monitoring/operator integrations from becoming single points of failure for the main Yasin runtime.
+
+## 8. Security and capability boundary
+
+The Operator Stack must expose only explicitly defined capabilities.
+
+The current Yasin-MCP ↔ Yasin-Operations integration is intentionally read-only at the Operations boundary. The adapter exposes fixed operations rather than a generic caller-supplied execution mechanism.
+
+A future mutating capability requires a separate architecture/security decision, explicit operation contract, safety classification, and dedicated verification.
+
+The Operator Stack must not provide an unrestricted shell, arbitrary process execution, arbitrary repository mutation, or an unbounded `execute_operation` mechanism merely because Hermes is connected.
+
+## 9. Protocol boundaries
+
+The protocols have distinct ownership:
 
 ```text
 Hermes
@@ -118,91 +198,51 @@ Hermes
   ▼
 Yasin-MCP
   │
-  │ Operations adapter
+  │ JSONL gateway
   ▼
 Yasin-Operations
 ```
 
-The following direct connection is **not** the target architecture:
+MCP and JSONL are separate protocols.
+
+Yasin-MCP translates the external MCP interaction into the explicitly supported Operations interface. Yasin-Operations continues to own and validate its own operation contract.
+
+## 10. Architectural principle
+
+The guiding principle is:
+
+> **The Operator Stack observes and controls the Yasin Core Stack through explicit boundaries; it does not become the Yasin Core Stack.**
+
+Therefore:
 
 ```text
-Hermes
-  │
-  │ MCP
-  ▼
-Yasin-Operations
+Original Yasin architecture
+        = Core Stack
+        = normal production/runtime path
+
+New Hermes/MCP/Operations architecture
+        = Operator Stack
+        = additive reporting/monitoring/control path
 ```
 
-That direct connection fails because Yasin-Operations intentionally has no MCP server implementation.
+Both can coexist. They solve different problems and should evolve independently.
 
-The observed Hermes test on 2026-08-20 attempted to register `yasin-operations` as an MCP server and failed because no MCP server exists there. This is expected under the current architecture and must not be recorded as a Yasin-Operations defect.
+## 11. Source-of-truth rule
 
-## 7. Verification performed on 2026-08-20
+This document is the ecosystem-level architectural record for the separation between the original Yasin Core Stack and the newer Hermes/MCP/Operations Operator Stack.
 
-### Yasin-Operations direct health
+Implementation details remain authoritative in the individual repositories:
 
-The installed CLI returned:
+- `yusi20006-max/YasinHub`
+- `yusi20006-max/Yasin-Agent`
+- `yusi20006-max/Yasin-core`
+- `yusi20006-max/Yasin-MCP`
+- `yusi20006-max/Yasin-Operations`
 
-```text
-success: True
-health.status: healthy
-health.target: self:runtime
-health.failure_reason: None
-services.summary.health: healthy
-services.summary.total: 0
-```
+When an implementation changes an integration boundary, this architecture record must be reconciled so that the two-stack separation remains explicit.
 
-The JSON form also returned `success: true` and `health.status: healthy`.
+## 12. Existing Yasin-MCP ↔ Yasin-Operations reconciliation
 
-### Yasin-Operations JSONL gateway
+The previous integration record remains valid: Yasin-MCP owns MCP, Yasin-Operations owns Operations, and Yasin-Operations is not itself an MCP server. Hermes therefore connects to Yasin-MCP rather than registering Yasin-Operations directly as an MCP server.
 
-Both the installed gateway entry point and the Python module entry point executed successfully and returned valid schema-version-1 JSON responses.
-
-The first test request used an unsupported target representation and returned `unsupported_health_target`; this was a request-contract mismatch, not a gateway failure. The direct CLI health contract subsequently confirmed the canonical runtime target as `self:runtime`.
-
-### Hermes direct MCP registration attempt
-
-Attempting to register `yasin-operations` directly in Hermes produced a connection failure and no MCP server configuration. Repository inspection confirms that this is expected because Yasin-Operations has no MCP server implementation.
-
-## 8. Required operational setup
-
-For Hermes to see Operations tools through Yasin-MCP, the environment in which Hermes launches Yasin-MCP must have both executables available:
-
-```text
-yasin-mcp
-yasin-operations
-```
-
-The expected client registration is therefore conceptually:
-
-```text
-Hermes → yasin-mcp
-```
-
-not:
-
-```text
-Hermes → yasin-operations
-```
-
-The exact Hermes command/configuration must be validated against the installed Hermes version during live integration testing; repository documentation alone is not sufficient evidence of a successful live connection.
-
-## 9. Boundary rules
-
-1. Yasin-MCP owns the MCP protocol boundary.
-2. Yasin-Operations owns Operations execution, safety policy, and runtime control semantics.
-3. Yasin-MCP must not import Yasin-Operations' private Python modules.
-4. The existing Yasin-Operations JSONL gateway remains a valid internal/local integration boundary.
-5. JSONL and MCP are separate protocols and must not be conflated.
-6. Operations capabilities exposed through Yasin-MCP remain read-only unless a future explicit architecture decision changes the safety contract.
-7. Hermes is an external MCP client; it is not a dependency of Yasin-Operations.
-8. Yasin-Operations must remain independently usable without Hermes or Yasin-MCP.
-9. Any future mutating MCP capability requires a separate architecture/security decision and dedicated tests.
-
-## 10. Source-of-truth rule
-
-This document is the YASIN-DOCS cross-project reconciliation record for the relationship between Yasin-MCP, Yasin-Operations, and Hermes.
-
-Repository implementation remains authoritative for implementation details. YASIN-DOCS is authoritative for the ecosystem-level ownership and boundary described here.
-
-When either repository changes its integration contract, this document must be updated in the same architectural reconciliation cycle.
+The existing detailed reconciliation and verification history is preserved in the repository's project documentation and should be read together with this ecosystem-level architecture record.
