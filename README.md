@@ -11,8 +11,9 @@ Its purpose is to give human developers and AI coding agents a single, structure
 1. **[Canonical Ecosystem Architecture](docs/architecture/YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md)** — read this first.
 2. **[Dependency Matrix](docs/architecture/ECOSYSTEM_DEPENDENCY_MATRIX_V1.md)** — understand confirmed and target project relationships.
 3. **[ADR-001 — Yasin-AI Canonical AI Platform](docs/adr/ADR-001-YASIN-AI-CANONICAL-AI-PLATFORM.md)** — read this before changing AI boundaries.
-4. **Project architecture documents** — read the document for the project being modified.
-5. **ADRs** — read relevant decisions before changing cross-project boundaries.
+4. **[Termux Canonical Project Layout](docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md)** — mandatory local filesystem convention for Yasin projects.
+5. **Project architecture documents** — read the document for the project being modified.
+6. **ADRs** — read relevant decisions before changing cross-project boundaries.
 
 ## Canonical Architecture
 
@@ -80,6 +81,7 @@ YASIN-DOCS/
 │   ├── api/
 │   │   └── Public APIs and integration contracts
 │   ├── operations/
+│   │   ├── TERMUX_CANONICAL_PROJECT_LAYOUT.md
 │   │   └── Runbooks and lifecycle procedures
 │   └── compatibility/
 │       └── Version and compatibility matrices
@@ -136,6 +138,12 @@ Update YASIN-DOCS + ADR if architecture changed
 ```
 
 The canonical architecture contains explicit rules for AI agents. Do not rely on repository names, assumptions, or stale conversation context to infer system relationships.
+
+### Termux filesystem rule
+
+All Yasin Ecosystem repositories used together on Termux MUST be installed directly under `$HOME/yasineco/<REPO>`. The canonical installation/replacement procedure and full bootstrap command are defined in [`docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md`](docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md).
+
+Legacy paths such as `$HOME/yasin-ecosystem/` and directory names ending in `-main` are not canonical and MUST NOT be introduced into active runtime configuration.
 
 ## What Belongs Here
 
