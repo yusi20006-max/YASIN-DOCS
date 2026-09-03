@@ -10,10 +10,11 @@ Its purpose is to give human developers and AI coding agents a single, structure
 
 1. **[Canonical Ecosystem Architecture](docs/architecture/YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md)** — read this first.
 2. **[Dependency Matrix](docs/architecture/ECOSYSTEM_DEPENDENCY_MATRIX_V1.md)** — understand confirmed and target project relationships.
-3. **[ADR-001 — Yasin-AI Canonical AI Platform](docs/adr/ADR-001-YASIN-AI-CANONICAL-AI-PLATFORM.md)** — read this before changing AI boundaries.
-4. **[Termux Canonical Project Layout](docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md)** — mandatory local filesystem convention for Yasin projects.
-5. **Project architecture documents** — read the document for the project being modified.
-6. **ADRs** — read relevant decisions before changing cross-project boundaries.
+3. **[Termux-First Compatibility Contract](docs/compatibility/TERMUX_FIRST_COMPATIBILITY_CONTRACT_V1.md)** — mandatory ecosystem-wide compatibility standard for Termux/Android.
+4. **[ADR-001 — Yasin-AI Canonical AI Platform](docs/adr/ADR-001-YASIN-AI-CANONICAL-AI-PLATFORM.md)** — read this before changing AI boundaries.
+5. **[Termux Canonical Project Layout](docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md)** — mandatory local filesystem convention for Yasin projects.
+6. **Project architecture documents** — read the document for the project being modified.
+7. **ADRs** — read relevant decisions before changing cross-project boundaries.
 
 ## Canonical Architecture
 
@@ -83,6 +84,8 @@ YASIN-DOCS/
 │   ├── operations/
 │   │   ├── TERMUX_CANONICAL_PROJECT_LAYOUT.md
 │   │   └── Runbooks and lifecycle procedures
+│   ├── compatibility/
+│   │   └── TERMUX_FIRST_COMPATIBILITY_CONTRACT_V1.md
 │   └── compatibility/
 │       └── Version and compatibility matrices
 └── .github/
@@ -122,6 +125,8 @@ Read Canonical Architecture
         ↓
 Read Dependency Matrix
         ↓
+Read Termux-First Compatibility Contract
+        ↓
 Read relevant ADRs
         ↓
 Read target project architecture
@@ -145,6 +150,10 @@ All Yasin Ecosystem repositories used together on Termux MUST be installed direc
 
 Legacy paths such as `$HOME/yasin-ecosystem/` and directory names ending in `-main` are not canonical and MUST NOT be introduced into active runtime configuration.
 
+### Termux-first runtime rule
+
+Termux/Android is a first-class Yasin runtime target. Python-version compatibility, native dependencies, Android ABI, compiled components, process lifecycle, and service entrypoints must be validated on the canonical Termux target rather than inferred from package metadata or successful compilation. The complete standard is defined in [`docs/compatibility/TERMUX_FIRST_COMPATIBILITY_CONTRACT_V1.md`](docs/compatibility/TERMUX_FIRST_COMPATIBILITY_CONTRACT_V1.md).
+
 ## What Belongs Here
 
 - Ecosystem architecture
@@ -167,3 +176,5 @@ YASIN-DOCS is **not** the implementation repository for Yasin runtime or applica
 **YASIN-DOCS v1.1 architecture baseline established.**
 
 The baseline now explicitly defines Yasin-AI as the canonical AI capability platform while preserving independent runtime ownership and requiring explicit public contracts for cross-project integration.
+
+The ecosystem now also has a **Termux-First Compatibility Contract v1** establishing Termux/Android as a first-class runtime target and requiring runtime-level compatibility evidence for Python and native dependencies.
