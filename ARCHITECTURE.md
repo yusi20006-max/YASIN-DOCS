@@ -1,65 +1,66 @@
 # Yasin Ecosystem Architecture
 
-This document is the top-level entry point to the architecture documentation of the Yasin Ecosystem.
+This document is the top-level architecture entry point for the Yasin ecosystem.
 
-## Purpose
+## Current canonical runtime model
 
-Yasin is a multi-repository software ecosystem rather than a single application. Its projects have distinct responsibilities and must be understood through their boundaries and relationships.
+```text
+User / Operator
+      │
+      ▼
+YasinCLI / approved operator clients
+      │
+      ▼
+YasinHub — Control Plane + Observability
+      │
+      ├── lifecycle / PID authority
+      ├── health / status
+      └── PWA control surface
+      │
+      ├──────────────┬───────────────┐
+      ▼              ▼               ▼
+Yasin-Core     Yasin-Agent      Domain services
+                  │             Relay / Feed / Press
+                  │               │
+                  └──────┬────────┘
+                         ▼
+                    Yasin-AI
+               Canonical AI Plane
+```
 
-The architecture documentation therefore treats the ecosystem as a system of cooperating components while keeping implementation ownership inside each project's repository.
+### Non-negotiable boundaries
 
-## Architecture Documentation
+- **YasinHub is the sole ecosystem lifecycle/PID authority.** Clients and the PWA request lifecycle operations; they do not maintain an independent authoritative process state.
+- **Yasin-Agent owns agent/workflow execution.** It does not become a second Control Plane.
+- **YasinRelay owns content relay/fetch/process/publish semantics.**
+- **Yasin-AI owns shared AI capability/provider boundaries.** Consumers use explicit public contracts and must not depend on private implementation modules.
+- **Yasin-MCP owns the MCP protocol boundary.** It is not a second lifecycle authority.
+- **Yasin-Operations is an optional operations provider/gateway and does not replace YasinHub as Control Plane.**
 
-The detailed architecture is maintained under [`docs/architecture/`](docs/architecture/).
+## Evidence status — 2026-09-05
 
-Project-specific production architecture and roadmaps are maintained under [`docs/projects/`](docs/projects/).
+The final YasinHub ecosystem acceptance track (#174) verified the software/runtime baseline on Android 11 API 30 ARM64 Termux. Current verified test totals are:
 
-### YasinCoder
+| Component | Result |
+|---|---:|
+| YasinHub | 478 passed |
+| Yasin-Agent | 240 passed |
+| YasinRelay | 108 passed |
+| Yasin-AI | 415 passed |
 
-- [YasinCoder Architecture & Production Roadmap](docs/projects/yasincoder/ARCHITECTURE-ROADMAP.md)
-- [YasinCoder Phase 2 AI Integration Audit](docs/projects/yasincoder/PHASE2-AI-INTEGRATION-AUDIT.md)
+The YasinHub acceptance also verified real child-process lifecycle behavior, PID identity/termination handling, PWA backend/API authority, and security regressions.
 
-YasinCoder is the canonical repository for the Yasin coding-agent application. Its local/cloud provider integration, coding workflows, project intelligence and web control plane should converge in that repository.
+The acceptance is **PARTIAL, not FULL PASS** because two external acceptance items remain: valid operator publishing configuration is required for a real publish E2E, and visual PWA acceptance requires an actual browser/mobile viewport. These are explicitly tracked rather than represented as successful.
 
-### YasinPress
+## Architecture governance rule
 
-- [YasinPress Architecture & Production Roadmap](docs/projects/yasinpress/ARCHITECTURE-ROADMAP.md)
+YASIN-DOCS is authoritative for cross-project architecture, boundaries, terminology, and decisions. Individual repositories remain authoritative for implementation. Any discrepancy must be recorded and reconciled with evidence.
 
-This roadmap is the shared target architecture for the YasinPress news-ingestion, article-intelligence, AI, queue, publishing, monitoring, PWA, scheduler and recovery pipeline. It explicitly distinguishes repository-verified implementation from planned production behavior.
+## Related documents
 
-### Slack Integration
-
-- [Yasin ↔ Slack Integration Architecture](docs/architecture/YASIN_SLACK_INTEGRATION.md)
-
-Slack is defined as a Human ↔ Yasin operational interface for communication, notifications, alerts, controlled commands, and agent interaction. YasinHub remains the Control Plane and source of truth; Slack must not bypass YasinHub to directly control the Agent Runtime.
-
-## Planned Architecture Coverage
-
-The architecture documentation covers:
-
-- ecosystem vision and boundaries;
-- global component and layer model;
-- project responsibility matrix;
-- dependency relationships;
-- data flow;
-- control flow;
-- AI flow;
-- agent and memory architecture;
-- integration and transport boundaries;
-- configuration and security boundaries;
-- deployment and observability;
-- testing and compatibility;
-- architecture decisions;
-- project-specific production roadmaps.
-
-## Current-State Rule
-
-The architecture repository must distinguish verified implementation from proposed design. Repository audits are authoritative for current implementation details.
-
-## Related Documents
-
-- [Ecosystem Overview](ECOSYSTEM.md)
+- [Ecosystem](ECOSYSTEM.md)
 - [Project Registry](PROJECTS.md)
 - [Roadmap](ROADMAP.md)
 - [Development Guide](DEVELOPMENT.md)
-- [AI Documentation](docs/ai/)
+- [Canonical architecture](docs/architecture/YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md)
+- [Termux compatibility contract](docs/compatibility/TERMUX_FIRST_COMPATIBILITY_CONTRACT_V1.md)
