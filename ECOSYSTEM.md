@@ -1,56 +1,50 @@
 # Yasin Ecosystem
 
-## Overview
+## Current canonical architecture
 
-The Yasin Ecosystem is a collection of related repositories that together provide foundation/runtime capabilities, agent capabilities, AI services, management and orchestration, integration, content pipelines, applications, developer tooling, and centralized documentation.
-
-The exact role and current status of every project will be verified during the repository-discovery phase. This document is intentionally a high-level overview and must not replace repository-specific audits.
-
-## Architectural Principle
-
-Each project should have a clear primary responsibility and a defined boundary. Functionality should be implemented in the layer that owns that responsibility rather than duplicated across repositories for convenience.
-
-## Conceptual Layers
+Yasin is a multi-repository ecosystem with explicit ownership boundaries. The verified operational path is:
 
 ```text
-Users / Developers
-        |
-        v
-Control Plane / Management
-        |
-        +-------------------+
-        |                   |
-        v                   v
-Agent / Runtime        Domain Applications
-        |                   |
-        v                   v
-Foundation            Content / Integration
-        |
-        +-------------------+
-                    |
-                    v
-                AI Services
+User / Operator
+      ↓
+YasinCLI / approved clients
+      ↓
+YasinHub — Control Plane
+      ↓
+Yasin-Core / Yasin-Agent / domain services
+      ↓
+Yasin-AI — shared AI capability plane
 ```
 
-This is a conceptual model only. The verified architecture will be derived from the actual repositories and their current interfaces.
+Content services include YasinRelay, YasinFeed and YasinPress. They retain domain ownership while consuming shared capabilities through public contracts.
 
-## System Boundaries
+## Control Plane rule
 
-The ecosystem documentation distinguishes at least these concerns:
+**YasinHub is the sole ecosystem lifecycle and PID authority.** Start, stop, restart, process identity, health and authoritative operational state belong to Hub. A PWA or client may request an operation but must not invent or persist an independent authoritative lifecycle state.
 
-- foundation and runtime;
-- agents and execution;
-- AI service/provider abstraction;
-- management and orchestration;
-- integration and relay;
-- content ingestion and publishing;
-- domain applications;
-- control-plane tooling;
-- documentation;
-- developer and infrastructure tooling.
+Yasin-Agent is the execution/runtime boundary; it is not a second Control Plane. Yasin-MCP owns MCP protocol/tool access. Yasin-Operations is an optional operations provider/gateway and does not replace Hub.
 
-## Source of Truth
+## AI boundary
 
-- Individual repositories are authoritative for implementation details.
-- YASIN-DOCS is authoritative for cross-project architecture, documented boundaries, decisions, and ecosystem-level guidance.
-- When documentation and implementation disagree, the discrepancy must be recorded and resolved rather than silently assuming one is correct.
+**Yasin-AI is the canonical shared AI platform.** Provider routing, shared AI services and platform-owned AI capabilities belong there. Relay/Feed/Press/Agent must use explicit public/versioned contracts rather than private Yasin-AI imports or parallel ecosystem-wide AI infrastructure.
+
+## Current evidence baseline — 2026-09-05
+
+The final ecosystem acceptance track verified the software/runtime baseline on Android 11 API 30 ARM64 Termux:
+
+- YasinHub: 478 tests passed
+- Yasin-Agent: 240 tests passed
+- YasinRelay: 108 tests passed
+- Yasin-AI: 415 tests passed
+- Real process/PID lifecycle and termination checks: passed
+- PWA backend/API control authority: passed
+- Security regression checks: passed
+
+Overall acceptance remains **PARTIAL (FIXED), not FULL PASS**. The remaining blockers are external: valid operator publishing configuration for real publish E2E, and real-browser/mobile visual acceptance of the PWA.
+
+## Source of truth
+
+- Project repositories are authoritative for implementation.
+- YASIN-DOCS is authoritative for cross-project architecture, boundaries, decisions and ecosystem guidance.
+- Yasin-Operations is the canonical operational evidence/reporting repository for acceptance checkpoints.
+- A target or proposed relationship must never be described as a confirmed runtime dependency without implementation evidence.
