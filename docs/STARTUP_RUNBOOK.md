@@ -221,3 +221,32 @@ final regression / Issue #174 closure evidence
 ```
 
 The discovery of `configure_interactively()` is now recorded here so the next operator/session does not need to rediscover the configuration path. Do not treat this source inspection itself as runtime acceptance; runtime claims still require runtime evidence.
+
+## 15. Hub status checkpoint — 2026-09-05
+
+On the clean `~/YasinEco` clone, with `YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"`, the canonical Hub status command was executed:
+
+```text
+PYTHONPATH=. python -m yasinhub.cli status
+```
+
+Observed status:
+
+- `yasinrelay`: **FAILED**; last recorded run was unsuccessful with process exit code 1.
+- `yasin-agent`: **IDLE/observed running** with a successful last observation.
+- `yasin-ai`: **IDLE** with a prior stopped result.
+- Other registered services were idle with no report.
+
+This is a persisted Hub status snapshot, not proof that Relay is currently running or currently failing. The next acceptance operation is a targeted Hub-managed `start yasinrelay`, followed by direct status/PID evidence.
+
+### 15.1 Canonical targeted start command
+
+YasinHub's CLI explicitly supports:
+
+```text
+PYTHONPATH=. python -m yasinhub.cli start yasinrelay
+```
+
+The command selects the registered `yasinrelay` service and calls the Hub `start_service()` lifecycle path. It must be preferred over manually executing the Relay launcher. 
+
+After a successful start, acceptance requires a subsequent Hub status/PID verification and process-identity evidence; the CLI's success message alone is not sufficient.
