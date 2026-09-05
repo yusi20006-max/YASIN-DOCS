@@ -1,92 +1,19 @@
 # Yasin Ecosystem Documentation Roadmap
 
-## Phase 1 — Foundation — COMPLETE
-- [x] Documentation hub established
-- [x] Top-level architecture/ecosystem/project documents
-- [x] Documentation directory foundation
-- [x] AI, development, operations and security entry points
+## Phases 1–7 — COMPLETE
 
-## Phase 2 — Repository Discovery — COMPLETE
-- [x] Repository inventory and identity
-- [x] Default branches and visibility
-- [x] README-level project purpose and boundaries
-- [x] Major documented modules
-- [x] Initial cross-project relationships and architecture questions
-- [x] Classification of primary, related and supporting projects
-- [x] Missing/unverified repository identification
-- [x] Owner-account repository scope pass
+- [x] Documentation hub and architecture baseline
+- [x] Repository discovery and project registry
+- [x] Master/per-project architecture records
+- [x] System graphs and dependency baselines
+- [x] AI handoff/context system
+- [x] Termux-first compatibility contract
+- [x] Cross-project architecture and boundary baseline
 
-## Phase 3 — Project Registry — COMPLETE (initial registry)
-- [x] Machine-readable registry
-- [x] Human-readable registry
-- [x] Project status/audit matrix
-- [x] Evidence/confidence model
-- [x] Cross-project fields
-- [x] Initial scope-candidate handling
+## Phase 8 — Architecture Decision Records — ACTIVE
 
-## Phase 4 — Master Architecture — COMPLETE (initial baseline)
-- [x] Master architecture document
-- [x] System overview
-- [x] Component classification
-- [x] Responsibility model
-- [x] Boundary model
-- [x] Conceptual data/control/AI/agent flows
-- [x] Configuration/security/deployment/testing principles
-- [x] AI coding-agent operating model
-- [x] Architecture maturity model
-- [x] Known architectural questions
-- [x] Source-verified relationships incorporated where evidence exists
-
-## Phase 5 — Per-Project Architecture — COMPLETE
-- [x] Project architecture records for all scoped projects
-- [x] Repository inventory and scope lock
-- [x] Source/manifest evidence pass
-- [x] Verified-contract register
-- [x] Source-verified architecture addendum
-- [x] Explicit evidence limitations and candidate handling
-- [x] High-confidence cross-project contracts documented
-
-## Phase 6 — System Graphs — COMPLETE (baseline closure)
-- [x] Ecosystem control, agent, content/feed, relay, AI, management, infrastructure and knowledge graphs
-- [x] Runtime/deployment baseline
-- [x] Dependency/contract graph
-- [x] API producer/consumer model
-- [x] Storage/configuration/security ownership graph
-- [x] Event/message/data-flow graph
-- [x] Import/API evidence baseline
-- [x] Storage/schema audit baseline
-- [x] Configuration/secret audit baseline
-- [x] Deployment evidence audit
-- [x] Phase 6 closure checklist
-
-### Deferred source-verification work
-- [ ] Complete import-level dependency graph
-- [ ] Complete source-verified symbol-level public API graph
-- [ ] Complete storage schema inventory
-- [ ] Complete configuration/secret inventory
-- [ ] Exact runtime process/service topology
-- [ ] Exact event/message transport and payloads
-- [ ] Exact production deployment topology
-
-## Phase 7 — AI Handoff System — COMPLETE
-- [x] Primary AI context file
-- [x] AI onboarding guide
-- [x] AI operating rules
-- [x] AI evidence policy
-- [x] AI project-selection matrix
-- [x] AI change-impact protocol
-- [x] AI testing/validation protocol
-- [x] AI security protocol
-- [x] AI Git workflow protocol
-- [x] AI handoff/reporting protocol
-- [x] Unified AI index/navigation
-- [x] AI context consistency audit
-
-## Phase 8 — Architecture Decision Records — IN PROGRESS
-- [ ] ADR standard and lifecycle
-- [ ] ADR index
-- [ ] Initial foundational architecture decisions
-- [ ] Runtime/core boundary decisions
+- [ ] ADR lifecycle/index completion
+- [ ] Runtime/Core boundary decisions
 - [ ] Agent architecture decisions
 - [ ] AI/provider decisions
 - [ ] Data/storage decisions
@@ -95,14 +22,43 @@
 - [ ] Security/trust-boundary decisions
 - [ ] Documentation governance decisions
 
-## Phase 9 — GitHub Governance
-Establish documentation-specific issues, labels, workflows, contribution rules, and quality checks.
+## Final Ecosystem Acceptance — PARTIAL (FIXED)
 
-## Phase 10 — Documentation Website
-Publish the documentation through GitHub Pages once the information architecture is stable.
+The software baseline is validated on the canonical Android 11 API 30 ARM64 Termux target:
 
-## Phase 11 — Synchronization
-Design mechanisms to detect when repository changes may require documentation updates.
+- YasinHub: 478 passed
+- Yasin-Agent: 240 passed
+- YasinRelay: 108 passed
+- Yasin-AI: 415 passed
+- Real process/PID lifecycle: PASS
+- PWA backend/API authority: PASS
+- Security regression: PASS
 
-## Phase 12 — Final Ecosystem Audit
-Validate that all important projects, interfaces, relationships, decisions, and operational guidance are documented and consistent with the actual repositories.
+Two acceptance items remain external to the software regression baseline:
+
+1. real publish E2E requires valid operator configuration (`SOURCE_CHANNELS`, publishing credential/channel and AI credential) supplied locally and never committed;
+2. final PWA visual acceptance requires a real browser/mobile viewport.
+
+These blockers must remain explicitly marked blocked until evidence exists.
+
+## Documentation Next Steps
+
+### Phase 9 — Final operational documentation
+- [ ] Final Termux startup runbook
+- [ ] Startup/stop/restart dependency order
+- [ ] Operator configuration procedure
+- [ ] Troubleshooting and recovery matrix
+- [ ] Startup Registry / external Gist mirror
+
+### Phase 10 — Governance and issue audit
+- [ ] Full GitHub issue audit across Yasin repositories
+- [ ] Close completed/duplicate/superseded issues with evidence
+- [ ] Preserve real blockers and future roadmap items
+- [ ] Reconcile milestone and project status
+
+### Phase 11 — Documentation website
+- [ ] Publish documentation when information architecture is stable
+
+### Phase 12 — Continuous synchronization
+- [ ] Detect repository changes requiring documentation updates
+- [ ] Maintain evidence freshness and architecture consistency
