@@ -39,6 +39,36 @@ YasinRelay's canonical Termux launcher is:
 
 The launcher must be executed with `shell=False` semantics and its process identity must be verified by the Control Plane before a start operation is reported successful.
 
+### 3.1 Canonical operator configuration path
+
+The canonical Relay CLI uses `configure_interactively()` for a normal interactive `run` when no explicit channel override is supplied. This path is implemented in `yasinrelay/cli.py` and `yasinrelay/config.py`.
+
+The important distinction is:
+
+- **Interactive configuration:** run the normal interactive Relay `run` path from a real TTY; it invokes `configure_interactively()` and persists the entered runtime settings to the local `.env`.
+- **Service/control-plane execution:** use the stored `.env` with `run --schedule --non-interactive`; do not depend on interactive prompts when YasinHub launches the service.
+- **Lifecycle authority:** even though the Relay launcher is canonical, lifecycle start/stop/restart for acceptance must be requested through YasinHub, not by manually launching Relay from a second terminal.
+
+The interactive configuration currently prompts for these settings, in this order:
+
+1. `EITAA_TOKEN` — required secret.
+2. `EITAA_CHANNEL` — required destination channel.
+3. `SOURCE_CHANNELS` — required comma-separated source channels.
+4. `AI_PROVIDER` — defaults to `yasinai`.
+5. `AI_API_KEY` — optional secret; falls back to `OPENAI_API_KEY` when unset.
+6. `AI_MODEL` — defaults to `gpt-4o-mini`.
+7. `AI_BASE_URL` — defaults to `https://api.openai.com/v1`.
+8. `FETCH_INTERVAL_SECONDS` — defaults to `3600`.
+9. `INTER_MESSAGE_DELAY_SECONDS` — defaults to `15`.
+10. `DATABASE_PATH` — defaults to `relay.db`.
+11. `LOG_LEVEL` — defaults to `INFO`.
+12. `EVENT_BUS_ENABLED` — defaults to `true`.
+13. `EVENT_LOGGING_ENABLED` — defaults to `true`.
+
+Pressing Enter keeps the previous value when one is already present. The configuration writer sets the `.env` permission to `0600` where supported.
+
+**Secret-handling rule:** this runbook records variable names and safe defaults only. Never paste or record actual token/API-key values in chat, GitHub issues, commits, reports, or this runbook.
+
 ## 4. Required operator configuration
 
 The following values may be required for a real publish run:
@@ -167,3 +197,27 @@ Once those gates are provisioned and executed, update the Issue #174 final repor
 ## 13. Evidence rule
 
 Every operational claim must be backed by command output, test output, API response, process/PID evidence, or browser evidence. A static source inspection can establish implementation intent but cannot substitute for runtime or visual acceptance where runtime/visual proof is required.
+
+## 14. Current continuation checkpoint
+
+The current continuation path after the clean `~/YasinEco` re-clone is:
+
+```text
+YasinRelay interactive configuration verified
+        ↓
+local .env verified (no secrets recorded)
+        ↓
+YasinHub control path
+        ↓
+Start → real PID/process identity verification
+        ↓
+real publish acceptance
+        ↓
+Stop / Restart → PID lifecycle verification
+        ↓
+PWA browser visual acceptance
+        ↓
+final regression / Issue #174 closure evidence
+```
+
+The discovery of `configure_interactively()` is now recorded here so the next operator/session does not need to rediscover the configuration path. Do not treat this source inspection itself as runtime acceptance; runtime claims still require runtime evidence.
