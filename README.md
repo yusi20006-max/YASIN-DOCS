@@ -13,8 +13,10 @@ Its purpose is to give human developers and AI coding agents a single, structure
 3. **[Termux-First Compatibility Contract](docs/compatibility/TERMUX_FIRST_COMPATIBILITY_CONTRACT_V1.md)** — mandatory ecosystem-wide compatibility standard for Termux/Android.
 4. **[ADR-001 — Yasin-AI Canonical AI Platform](docs/adr/ADR-001-YASIN-AI-CANONICAL-AI-PLATFORM.md)** — read this before changing AI boundaries.
 5. **[Termux Canonical Project Layout](docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md)** — mandatory local filesystem convention for Yasin projects.
-6. **Project architecture documents** — read the document for the project being modified.
-7. **ADRs** — read relevant decisions before changing cross-project boundaries.
+6. **[Yasin Ecosystem Startup Runbook](docs/STARTUP_RUNBOOK.md)** — canonical operational entry point for startup, lifecycle/PID authority, configuration, security, real publish acceptance, and remaining acceptance gates.
+7. **[Real Publish Acceptance Record — 2026-09-06](docs/operations/REAL_PUBLISH_ACCEPTANCE_2026-09-06.md)** — recorded runtime PASS for the real-publish gate.
+8. **Project architecture documents** — read the document for the project being modified.
+9. **ADRs** — read relevant decisions before changing cross-project boundaries.
 
 ## Canonical Architecture
 
@@ -72,6 +74,7 @@ Its purpose is to give human developers and AI coding agents a single, structure
 YASIN-DOCS/
 ├── README.md
 ├── docs/
+│   ├── STARTUP_RUNBOOK.md
 │   ├── architecture/
 │   │   ├── YASIN_ECOSYSTEM_CANONICAL_ARCHITECTURE_V1.md
 │   │   ├── ECOSYSTEM_DEPENDENCY_MATRIX_V1.md
@@ -82,6 +85,8 @@ YASIN-DOCS/
 │   ├── api/
 │   │   └── Public APIs and integration contracts
 │   ├── operations/
+│   │   ├── README.md
+│   │   ├── REAL_PUBLISH_ACCEPTANCE_2026-09-06.md
 │   │   ├── TERMUX_CANONICAL_PROJECT_LAYOUT.md
 │   │   └── Runbooks and lifecycle procedures
 │   ├── compatibility/
@@ -128,6 +133,8 @@ Read Dependency Matrix
 Read Termux-First Compatibility Contract
         ↓
 Read relevant ADRs
+        ↓
+Read Startup Runbook
         ↓
 Read target project architecture
         ↓
@@ -178,3 +185,5 @@ YASIN-DOCS is **not** the implementation repository for Yasin runtime or applica
 The baseline now explicitly defines Yasin-AI as the canonical AI capability platform while preserving independent runtime ownership and requiring explicit public contracts for cross-project integration.
 
 The ecosystem now also has a **Termux-First Compatibility Contract v1** establishing Termux/Android as a first-class runtime target and requiring runtime-level compatibility evidence for Python and native dependencies.
+
+**Operational readiness update — 2026-09-06:** the canonical startup runbook is registered above, and the real-publish acceptance record is documented with a verified non-secret Eitaa receipt. PWA visual acceptance remains a separate gate and is intentionally deferred to the later UI/Claude pass.
