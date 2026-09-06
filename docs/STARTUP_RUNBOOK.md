@@ -4,6 +4,7 @@
 **Acceptance anchor:** YasinHub Issue #174
 **Milestone:** #1 — Yasin Ecosystem — Final Acceptance & Operational Readiness
 **Platform:** Android 11 / Termux / ARM64
+**Last verified:** 2026-09-06
 
 ## 1. Authority and boundaries
 
@@ -158,7 +159,23 @@ Hub command
   → truthful resulting status
 ```
 
-If required configuration is absent, record the run as **OPERATOR-BLOCKED**, not PASS.
+### 9.1 Verified real-publish result — 2026-09-06
+
+The Real Publish Acceptance audit was subsequently executed on Android 11 / Termux / ARM64 / Python 3.14.6. The persisted Operations evidence records:
+
+- real source processing from `@bbcpersian`;
+- real Eitaa publishing through `EitaaPublisher`;
+- destination configured as `@yasinrelay`;
+- successful Eitaa response with `success=True` and `message_id=169818801`;
+- Relay test suite: 108 passed;
+- Hub test suite: 478 passed;
+- no credential or secret values recorded in the evidence.
+
+This establishes **REAL PUBLISH ACCEPTANCE: PASS** for the publish gate. The evidence is persisted in `Yasin-Operations` at `reports/active/real-publish-acceptance.md`.
+
+The publish gate must not be rerun merely to reproduce this evidence unless a new regression, configuration change, or release requires it.
+
+If required configuration is absent in a future run, record that run as **OPERATOR-BLOCKED**, not PASS.
 
 ## 10. Security rules
 
@@ -182,17 +199,19 @@ The final Issue #174 software/device regression established the following baseli
 - Real PID lifecycle machinery was verified, including start/stop/restart and short-lived-process/zombie prevention.
 - PWA backend/API control-path checks passed.
 - Security checks passed.
+- Real publish gate subsequently passed with a verified Eitaa receipt (`message_id=169818801`).
 
-These results do not convert the remaining external acceptance blockers into a PASS.
+These results distinguish software/runtime acceptance from the separate PWA visual acceptance gate.
 
 ## 12. Remaining acceptance gates
 
-At the latest Issue #174 checkpoint, two external gates remained:
+The real-publish gate is now **PASS** based on the persisted Eitaa receipt evidence. One acceptance gate remains:
 
-1. **Real publish:** requires valid operator-provided `SOURCE_CHANNELS`, Eitaa configuration, and AI credentials/configuration.
-2. **PWA visual acceptance:** requires execution in a real browser/mobile viewport and visual verification of the acceptance checklist.
+1. **PWA visual acceptance:** requires execution in a real browser/mobile viewport and visual verification of the acceptance checklist.
 
-Once those gates are provisioned and executed, update the Issue #174 final report and rerun the final regression/acceptance checkpoint. Do not restart completed phases.
+PWA visual polish is intentionally deferred to the later Claude/UI pass. Do not alter the accepted backend/control-plane contract merely for visual work.
+
+Once visual acceptance is executed, update the Issue #174 final/handoff evidence and the Operations index. Do not restart completed lifecycle or publish phases without a new reason.
 
 ## 13. Evidence rule
 
@@ -200,7 +219,7 @@ Every operational claim must be backed by command output, test output, API respo
 
 ## 14. Current continuation checkpoint
 
-The current continuation path after the clean `~/YasinEco` re-clone is:
+The current continuation path is:
 
 ```text
 YasinRelay interactive configuration verified
@@ -211,16 +230,16 @@ YasinHub control path
         ↓
 Start → real PID/process identity verification
         ↓
-real publish acceptance
+real publish acceptance — PASS
         ↓
-Stop / Restart → PID lifecycle verification
+Stop / Restart → PID lifecycle verification (already accepted)
         ↓
-PWA browser visual acceptance
+PWA browser visual acceptance — REMAINING
         ↓
 final regression / Issue #174 closure evidence
 ```
 
-The discovery of `configure_interactively()` is now recorded here so the next operator/session does not need to rediscover the configuration path. Do not treat this source inspection itself as runtime acceptance; runtime claims still require runtime evidence.
+The discovery of `configure_interactively()` is recorded here so the next operator/session does not need to rediscover the configuration path. Do not treat source inspection itself as runtime acceptance; runtime claims still require runtime evidence.
 
 ## 15. Hub status checkpoint — 2026-09-05
 
@@ -247,6 +266,24 @@ YasinHub's CLI explicitly supports:
 PYTHONPATH=. python -m yasinhub.cli start yasinrelay
 ```
 
-The command selects the registered `yasinrelay` service and calls the Hub `start_service()` lifecycle path. It must be preferred over manually executing the Relay launcher. 
+The command selects the registered `yasinrelay` service and calls the Hub `start_service()` lifecycle path. It must be preferred over manually executing the Relay launcher.
 
 After a successful start, acceptance requires a subsequent Hub status/PID verification and process-identity evidence; the CLI's success message alone is not sufficient.
+
+## 16. Operations evidence and document authority
+
+The canonical operational evidence for the real-publish gate is maintained in `yusi20006-max/Yasin-Operations`. YASIN-DOCS does not duplicate secret-bearing runtime state; it records the acceptance result, evidence location, operational procedure, and remaining gate.
+
+Current authoritative evidence location:
+
+```text
+Yasin-Operations/reports/active/real-publish-acceptance.md
+```
+
+The runbook itself is canonical in YASIN-DOCS:
+
+```text
+YASIN-DOCS/docs/STARTUP_RUNBOOK.md
+```
+
+This explicit registration is intentional: future operators and coding agents should start from YASIN-DOCS, then consult the Operations evidence rather than relying on chat history.
