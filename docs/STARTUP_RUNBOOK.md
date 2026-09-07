@@ -359,3 +359,66 @@ YASIN-DOCS/docs/STARTUP_RUNBOOK.md
 ```
 
 This explicit registration is intentional: future operators and coding agents should start from YASIN-DOCS, then consult the Operations evidence rather than relying on chat history.
+
+## 17. Fresh Termux installation — new device
+
+Use this procedure for a new Android/Termux device with no existing Yasin checkout. This is an installation procedure only; it does **not** establish runtime, lifecycle, publish, or PWA visual acceptance.
+
+### 17.1 Install prerequisites and clone the canonical repositories
+
+```bash
+pkg update -y && pkg upgrade -y
+pkg install -y git python nodejs
+
+mkdir -p ~/YasinEco
+cd ~/YasinEco
+
+git clone https://github.com/yusi20006-max/YASIN-DOCS.git
+git clone https://github.com/yusi20006-max/Yasin-AI.git
+git clone https://github.com/yusi20006-max/Yasin-MCP.git
+git clone https://github.com/yusi20006-max/Yasin-Operations.git
+git clone https://github.com/yusi20006-max/Yasin-agent.git
+git clone https://github.com/yusi20006-max/Yasin-cli.git
+git clone https://github.com/yusi20006-max/Yasin-core.git
+git clone https://github.com/yusi20006-max/YasinHub.git
+git clone https://github.com/yusi20006-max/YasinPress-Rewrite-.git
+git clone https://github.com/yusi20006-max/YasinRelay.git
+git clone https://github.com/yusi20006-max/Yasinfeed.git
+```
+
+### 17.2 Prepare the verified YasinHub Python environment
+
+```bash
+export YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"
+
+cd "$YASIN_ECOSYSTEM_ROOT/YasinHub"
+
+python -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+pip install -e .
+
+export PYTHONPATH=.
+```
+
+### 17.3 Verify installation
+
+```bash
+printf '\n=== INSTALLATION COMPLETE ===\n'
+printf 'YASIN_ECOSYSTEM_ROOT=%s\n' "$YASIN_ECOSYSTEM_ROOT"
+printf 'HUB=%s\n' "$(git rev-parse --short HEAD)"
+
+printf '\n=== HUB STATUS ===\n'
+python -m yasinhub.cli status
+```
+
+A successful installation/status check does not mean the Relay is configured or that real publishing works. Provision operator configuration separately and securely before any runtime/publish acceptance.
+
+### 17.4 Installation safety rules
+
+- Do not paste or print `EITAA_TOKEN`, `AI_API_KEY`, `OPENAI_API_KEY`, or any other credential into this procedure.
+- Do not copy secrets into Git repositories.
+- Keep runtime `.env` local and protected; recommended permission is `0600`.
+- Do not claim service RUNNING, real publish PASS, or PWA visual PASS solely because cloning/install/status succeeded.
+- Do not invent dependency requirements for repositories whose runtime installation requirements have not been verified.
