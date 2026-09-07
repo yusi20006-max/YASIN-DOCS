@@ -4,7 +4,7 @@
 **Acceptance anchor:** YasinHub Issue #174
 **Milestone:** #1 — Yasin Ecosystem — Final Acceptance & Operational Readiness
 **Platform:** Android 11 / Termux / ARM64
-**Last verified:** 2026-09-06
+**Last verified:** 2026-09-08
 
 ## 1. Authority and boundaries
 
@@ -134,6 +134,16 @@ The PWA is an operational interface to YasinHub. Start/stop/restart controls mus
 
 For final visual acceptance, use a real browser on the target mobile viewport. Static source inspection or an HTTP 200 response is not sufficient to claim visual acceptance.
 
+The current mobile UI contract is:
+
+- no hamburger/menu-toggle button;
+- no mobile drawer/sidebar;
+- no mobile navigation entries (`نمای کلی`, `اجراها`, `ناوها`, `رویدادها`);
+- dashboard content uses the full mobile width;
+- desktop sidebar/navigation remains available on desktop viewports.
+
+The accepted implementation is in YasinHub PR #178, merged to `main` as commit `7c9d40b3a8058648aab99b706f073adc16d2e18a`.
+
 ## 8. Health and diagnostics
 
 Use Hub health/readiness and service-status endpoints to verify:
@@ -241,34 +251,96 @@ final regression / Issue #174 closure evidence
 
 The discovery of `configure_interactively()` is recorded here so the next operator/session does not need to rediscover the configuration path. Do not treat source inspection itself as runtime acceptance; runtime claims still require runtime evidence.
 
-## 15. Hub status checkpoint — 2026-09-05
+## 15. Hub startup and execution commands
 
-On the clean `~/YasinEco` clone, with `YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"`, the canonical Hub status command was executed:
-
-```text
-PYTHONPATH=. python -m yasinhub.cli status
-```
-
-Observed status:
-
-- `yasinrelay`: **FAILED**; last recorded run was unsuccessful with process exit code 1.
-- `yasin-agent`: **IDLE/observed running** with a successful last observation.
-- `yasin-ai`: **IDLE** with a prior stopped result.
-- Other registered services were idle with no report.
-
-This is a persisted Hub status snapshot, not proof that Relay is currently running or currently failing. The next acceptance operation is a targeted Hub-managed `start yasinrelay`, followed by direct status/PID evidence.
-
-### 15.1 Canonical targeted start command
-
-YasinHub's CLI explicitly supports:
+The canonical local ecosystem root is:
 
 ```text
-PYTHONPATH=. python -m yasinhub.cli start yasinrelay
+~/YasinEco
 ```
 
-The command selects the registered `yasinrelay` service and calls the Hub `start_service()` lifecycle path. It must be preferred over manually executing the Relay launcher.
+The canonical YasinHub PWA server is started by importing `yasinhub.api.server.run`; there is no `serve` subcommand in the Hub CLI.
 
-After a successful start, acceptance requires a subsequent Hub status/PID verification and process-identity evidence; the CLI's success message alone is not sufficient.
+### 15.1 Complete YasinHub execution sequence
+
+Use this sequence from a Termux session:
+
+```bash
+cd ~/YasinEco/YasinHub
+
+git fetch origin
+git checkout main
+git reset --hard origin/main
+git clean -fd
+
+export YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"
+export PYTHONPATH=.
+
+printf '\n=== HUB COMMIT ===\n'
+git rev-parse --short HEAD
+
+printf '\n=== HUB STATUS ===\n'
+python -m yasinhub.cli status
+
+printf '\n=== START HUB HTTP/PWA SERVER ===\n'
+python -c 'from yasinhub.api.server import run; run()'
+```
+
+The final command is a foreground server and intentionally remains running. Keep that Termux session open while using the PWA.
+
+After the server is running, open:
+
+```text
+http://127.0.0.1:8000/dashboard/
+```
+
+Verify the version/build endpoint:
+
+```bash
+curl -sS http://127.0.0.1:8000/api/version
+```
+
+Expected shape:
+
+```json
+{"service":"YasinHub","pwa_version":"1.0.0","build":"<current-git-build>"}
+```
+
+The build value must match the current deployed Hub revision. Do not claim a stale browser cache is current merely because the HTTP server is current; refresh/reopen the PWA when Service Worker assets have changed.
+
+### 15.2 Canonical service lifecycle commands
+
+Do not manually launch Relay as a second lifecycle authority. Use YasinHub:
+
+```bash
+cd ~/YasinEco/YasinHub
+export YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"
+export PYTHONPATH=.
+
+python -m yasinhub.cli status
+python -m yasinhub.cli start yasinrelay
+python -m yasinhub.cli status
+```
+
+For lifecycle acceptance, use the Hub responses plus OS-level process/PID evidence. The CLI success line alone is not sufficient.
+
+### 15.3 Important server rule
+
+Before starting the HTTP server, make sure another Hub server is not already bound to port `8000`. If port `8000` is already in use, do not start a second server; inspect/use the existing Hub server instead.
+
+### 15.4 Current mobile PWA execution result
+
+The versioned PWA was verified at build `cc744e1` with `PWA v1.0.0`, then the mobile navigation contract was changed in PR #178 and merged as `7c9d40b`. The expected current mobile result is:
+
+```text
+No ☰ button
+No drawer/sidebar
+No mobile nav entries
+Full-width dashboard content
+Desktop sidebar preserved
+```
+
+This browser-visible behavior must be checked after syncing `origin/main` and refreshing/reopening the PWA.
 
 ## 16. Operations evidence and document authority
 
