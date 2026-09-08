@@ -13,24 +13,17 @@ Yasin canonical HTTP services use the reserved range:
 7000–7099
 ```
 
-Formally:
-
-```text
-7000 <= Yasin service port <= 7099
-```
-
 Ports outside this range require an explicit, documented architecture exception.
 
 ## 2. Canonical allocation
 
+Only runtimes with a verified HTTP listener receive a canonical HTTP port.
+
 | Service | Port | Host | Health endpoint |
 |---|---:|---|---|
 | YasinHub | 7000 | `0.0.0.0`* | `/api/health` |
-| Yasin-AI | 7001 | `127.0.0.1` | `/health` |
 | Yasin-Agent | 7002 | `127.0.0.1` | `/v1/health` |
-| YasinPress | 7003 | `127.0.0.1` | `/api/health` |
 | YasinFeed | 7004 | `127.0.0.1` | `/api/health` |
-| Yasin-Coder | 7005 | `127.0.0.1` | `/health` |
 
 `*` YasinHub is the documented binding exception because the PWA/dashboard must remain reachable through the Hub server. Lifecycle health checks still target `127.0.0.1`.
 
@@ -38,34 +31,39 @@ The canonical allocation is maintained in YasinHub's `yasinhub/ports.py`. The se
 
 ## 3. Portless services
 
-The following are not assigned HTTP ports:
+Services without a verified HTTP runtime are portless. They are not assigned synthetic ports merely for lifecycle management:
 
 ```text
 YasinRelay       -> portless worker
                  launcher: .venv/bin/yasinrelay-termux run --schedule --non-interactive
                  process_pattern: yasinrelay.cli
 
+Yasin-AI         -> portless worker/supervisor until an actual HTTP listener is verified
+YasinPress       -> portless worker/CLI runtime
+Yasin-Coder      -> portless/retired CLI entry (disabled in Hub registry)
 eitaa_news_v2    -> retired worker
 backup_manager   -> retired worker
 ```
 
-A worker must not receive an artificial HTTP port merely to participate in lifecycle management.
+A future HTTP runtime for any of these services may receive the next available
+port only after its actual start command, bind behavior, process identity and
+health endpoint are verified and registered centrally.
 
 ## 4. Process Identity and Port Ownership
 
-A listening port does not by itself prove service identity. For an HTTP lifecycle operation, YasinHub verifies:
+For HTTP services, YasinHub verifies:
 
 ```text
-Process Identity
-+
-Port Ownership
-+
-Health
+Process Identity + Port Ownership + Health
 ```
 
-Process identity is checked from OS process information. Port ownership is checked against the expected process where the platform permits owner discovery.
+For portless workers, YasinHub verifies:
 
-On platforms where direct socket-owner discovery is unavailable, the implementation may use the documented correlated verification path (free-before-spawn, expected-port occupancy, and a succeeding contract health endpoint). If neither an owner proof nor the required health anchor is available, the result is fail-closed.
+```text
+Process Identity + Liveness
+```
+
+A PID by itself never proves service identity.
 
 ## 5. Unknown-owner rule
 
@@ -73,91 +71,61 @@ On platforms where direct socket-owner discovery is unavailable, the implementat
 UNKNOWN PORT OWNER -> FAIL CLOSED
 ```
 
-If an expected Yasin port is already occupied by an unrelated process:
-
-- do not kill it;
-- do not terminate it;
-- do not reuse its PID;
-- do not report the Yasin service as `RUNNING`;
-- fail the lifecycle operation;
-- diagnostics may record the port/PID needed to diagnose the collision, but never secrets.
-
-Only a process that YasinHub itself has safely identified as the managed service may be stopped during lifecycle recovery.
+If an expected HTTP port is occupied by an unrelated process, YasinHub must not
+kill it, terminate it, reuse its PID, or report the managed service as RUNNING.
 
 ## 6. Start contract
 
-A service is `RUNNING` only when all conditions hold:
+HTTP service:
 
 ```text
-Process is alive
-AND
-Process identity matches expected service
-AND
-Expected port is owned by that process/service
-AND
-Health endpoint succeeds
+Process alive
+AND identity matches
+AND expected port owned
+AND health succeeds
 ```
 
-PID existence or successful process creation alone is insufficient.
+Portless worker:
+
+```text
+Process alive
+AND identity matches
+```
+
+Process creation alone is insufficient.
 
 ## 7. Stop and restart contract
 
-Restart follows this sequence:
-
-```text
-1. Identify current service PID
-2. Verify Process Identity
-3. Gracefully stop
-4. Verify old PID is dead
-5. Verify expected port is released
-6. Start service
-7. Obtain new PID
-8. Verify new Process Identity
-9. Verify expected port ownership
-10. Verify HTTP health
-11. Only then report RUNNING
-```
-
-The old PID must never be treated as proof of the new runtime. This protects against stale state and PID reuse.
+Restart verifies the old PID, stops only an identity-matching managed process,
+verifies PID death and port release where applicable, then starts and verifies
+the new process. The old PID is never proof of the new runtime.
 
 ## 8. Wrong-port rule
 
-If the expected process is alive and identity-matching but serves on a port other than its canonical allocation, the service is not `RUNNING`.
-
-Example:
-
-```text
-expected: 7001
-actual:   7002
-result:   FAIL CLOSED
-```
+A service with a verified HTTP runtime that listens on a non-canonical port is
+not RUNNING under the HTTP contract. A service classified as portless has no
+expected HTTP port and therefore cannot fail merely because no port is open.
 
 ## 9. Host binding
 
-Local Yasin HTTP services should bind to:
-
-```text
-127.0.0.1
-```
-
-unless the architecture explicitly requires external reachability. Such exceptions must be documented. The current YasinHub `0.0.0.0` binding is the documented PWA/dashboard exception.
+Local HTTP services should bind to `127.0.0.1` unless external reachability is
+explicitly required. YasinHub's `0.0.0.0` binding is the documented PWA exception.
 
 ## 10. Single Control Plane
 
 YasinHub remains the sole Control Plane, lifecycle authority, and PID authority.
 
-Canonical lifecycle paths remain:
-
 ```text
-PWA  -> YasinHub
-CLI  -> YasinHub
+PWA -> YasinHub
+CLI -> YasinHub
 ```
 
-The PWA must not directly manage processes or ports. No second Control Plane, PID manager, or authorization system is introduced by this port contract.
+The PWA never directly manages processes or ports.
 
 ## 11. Registry and compatibility
 
-The runtime registry is the lifecycle source of truth for service configuration. It must expose, where applicable:
+The executable registry is the lifecycle source of truth. It exposes, where
+applicable:
 
 ```text
 service_name
@@ -169,48 +137,36 @@ port
 health_endpoint
 ```
 
-Legacy ecosystem-path compatibility remains supported where required. The canonical runtime root is:
-
-```text
-~/YasinEco
-```
-
-This contract does not supersede or regress the canonical-root correction from YasinHub commit `b7b13bb`.
+The canonical runtime root is `~/YasinEco`. Stale local configuration must not
+resurrect a retired or synthetic HTTP port assignment; canonical port metadata
+comes from YasinHub's central allocation.
 
 ## 12. Migration rule
 
-Legacy bindings such as `8000`/`8080`/`8101` are not canonical allocations for HTTP services after Issue #179. Transitional environment overrides may remain where already supported for backward compatibility, but new canonical configuration must use the allocation in this document.
-
-Do not change a service's port as an ad-hoc fix without updating the canonical registry and this contract.
+Legacy bindings such as `8000`/`8080`/`8101` are not canonical allocations after
+Issue #179. Transitional overrides may remain where already supported, but new
+canonical configuration must use only verified HTTP allocations.
 
 ## 13. Security rules
 
 - Never log tokens or API keys.
 - Never expose `.env` contents.
 - Never kill an unknown port owner.
-- Do not perform broad unnecessary port scanning.
-- Probe only expected service ports during lifecycle verification.
+- Probe only expected service ports.
 - Keep lifecycle authority in YasinHub.
-- Fail closed when ownership or identity cannot be established safely.
+- Fail closed when identity or ownership cannot be established safely.
 
 ## 14. Evidence and testing
 
-YasinHub Issue #179 defines the required automated coverage for:
+Issue #179 requires automated coverage for allocation, reserved-range rules,
+portless behavior, collision safety, Process Identity, Port Ownership, health,
+PID death, port release, restart/new-PID behavior and wrong-port rejection.
 
-- canonical allocation and uniqueness;
-- reserved-range validation;
-- portless Relay behavior;
-- unknown-owner collision handling;
-- protection against killing foreign processes;
-- Process Identity verification;
-- Port Ownership verification;
-- health verification;
-- PID-death and port-release verification;
-- restart/new-PID verification;
-- wrong-port rejection.
-
-Runtime claims require runtime evidence. Source inspection alone is not a substitute for process, port, health, or browser evidence where those are required.
+Runtime claims require runtime evidence; source inspection alone is not runtime
+proof.
 
 ## 15. Authority
 
-This document is the YASIN-DOCS cross-repository statement of the Issue #179 port contract. The executable allocation and lifecycle enforcement remain implemented by YasinHub.
+This document is the YASIN-DOCS cross-repository statement of the Issue #179
+contract. Executable allocation and lifecycle enforcement remain implemented by
+YasinHub.
