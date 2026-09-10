@@ -33,6 +33,22 @@ This roadmap is the shared target architecture for the YasinPress news-ingestion
 
 Slack is defined as a Human ↔ Yasin operational interface for communication, notifications, alerts, controlled commands, and agent interaction. YasinHub remains the Control Plane and source of truth; Slack must not bypass YasinHub to directly control the Agent Runtime.
 
+## Ecosystem Startup Contract
+
+All Yasin services that expose local listening ports should converge on a single canonical startup entrypoint. The startup command must be safe to repeat and must own its preflight/recovery behavior.
+
+The contract is:
+
+- Check the configured/default service port before starting.
+- If the port is free, start normally.
+- If the port is occupied, identify the current process before mutating anything.
+- Terminate and replace a process only when it is positively identified as the same managed Yasin service instance.
+- After termination, verify that the old process has exited and the port has actually been released before starting the replacement.
+- If the port belongs to another or unrecognized program, fail closed, report the conflict, and never kill or modify that process.
+- A successful termination request by itself is not sufficient evidence of recovery.
+
+This is a cross-ecosystem operational contract, not permission for one service to manage unrelated services. Implementation details remain owned by each service repository, while Yasin-Operations defines the operational expectations and YASIN-DOCS defines the ecosystem-level contract.
+
 ## Planned Architecture Coverage
 
 The architecture documentation covers:
