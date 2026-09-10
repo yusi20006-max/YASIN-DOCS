@@ -4,7 +4,7 @@
 **Platform:** Android / Termux / ARM64
 **Canonical root:** `~/YasinEco`
 **YasinHub dedicated port:** `7000`
-**Last verified:** 2026-09-10
+**Last verified:** 2026-09-11
 
 ## 1. Authority
 
@@ -139,6 +139,76 @@ http://127.0.0.1:7006/
 ```
 
 The OpenFeed runtime defaults to port `7006` and accepts `OPENFEED_PORT` for an explicitly overridden local port.
+
+### 6.1 OpenFeed — canonical Termux/runit startup
+
+OpenFeed is independently managed from the YasinHub lifecycle because it is an independent repository/runtime. On Termux, use `runit` for its persistent local process; do not start a second copy with `./openfeed` while the runit service is active.
+
+Service directory:
+
+```text
+~/.local/service/openfeed
+```
+
+The service `run` entrypoint is:
+
+```sh
+#!/data/data/com.termux/files/usr/bin/sh
+cd "$HOME/yasineco/Openfeed"
+exec ./openfeed
+```
+
+Canonical startup prerequisites:
+
+1. The repository must exist at `~/yasineco/Openfeed`.
+2. The `openfeed` binary must be built at `~/yasineco/Openfeed/openfeed`.
+3. The service directory must contain an executable `run` file.
+4. `runsvdir` must supervise `~/.local/service`.
+5. Only one OpenFeed instance may own port `7006`.
+
+Canonical setup/start commands on Termux:
+
+```bash
+cd ~/yasineco/Openfeed
+
+mkdir -p ~/.local/service/openfeed
+
+cat > ~/.local/service/openfeed/run <<'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+cd "$HOME/yasineco/Openfeed"
+exec ./openfeed
+EOF
+
+chmod +x ~/.local/service/openfeed/run
+
+mkdir -p ~/.local/service
+nohup runsvdir "$HOME/.local/service" > "$HOME/.local/service/runsvdir.log" 2>&1 &
+
+sleep 2
+sv up "$HOME/.local/service/openfeed"
+sv status "$HOME/.local/service/openfeed"
+```
+
+If an older manually started `./openfeed` is already using port `7006`, stop that old process before enabling the runit service. Never run a manual `./openfeed` alongside the supervised service.
+
+Canonical runtime verification:
+
+```bash
+sv status ~/.local/service/openfeed
+curl -I http://127.0.0.1:7006/
+pgrep -af openfeed
+```
+
+Acceptance requires a `run:` status from `sv`, an HTTP response from port `7006`, and exactly one active OpenFeed process owned by the runit service.
+
+Control commands:
+
+```bash
+sv up ~/.local/service/openfeed
+sv down ~/.local/service/openfeed
+sv restart ~/.local/service/openfeed
+sv status ~/.local/service/openfeed
+```
 
 ## 7. Canonical Relay launcher
 
