@@ -1,14 +1,14 @@
 # Yasin Ecosystem Startup Runbook
 
 **Status:** Canonical operational runbook
-**Acceptance anchor:** YasinHub Issue #174
-**Milestone:** #1 — Yasin Ecosystem — Final Acceptance & Operational Readiness
-**Platform:** Android 11 / Termux / ARM64
-**Last verified:** 2026-09-08
+**Platform:** Android / Termux / ARM64
+**Canonical root:** `~/YasinEco`
+**YasinHub dedicated port:** `7000`
+**Last verified:** 2026-09-10
 
-## 1. Authority and boundaries
+## 1. Authority
 
-YasinHub is the sole Control Plane and lifecycle/PID authority. The PWA observes and requests lifecycle operations through YasinHub; it must not maintain an independent process state. Yasin-Agent consumes the Hub contract and must not become a second lifecycle authority. YasinRelay is the canonical process boundary for the publishing runtime. Yasin-AI is the canonical AI capability/provider boundary.
+YasinHub is the sole Control Plane and lifecycle/PID authority. The PWA requests lifecycle operations through YasinHub. Do not create a second Control Plane or maintain an independent PID authority.
 
 Canonical flow:
 
@@ -18,252 +18,20 @@ PWA → YasinHub → Yasin-Agent → YasinRelay
                Yasin-AI
 ```
 
-## 2. Startup order
+## 2. Canonical YasinHub startup
 
-1. Enter the intended Termux project environment.
-2. Verify repository state and Python/runtime prerequisites.
-3. Verify the operator configuration without printing secrets.
-4. Start/control services through YasinHub only.
-5. Verify real process identity and PID state from Hub responses.
-6. Open the PWA/dashboard and treat Hub backend state as authoritative.
-7. Run real publish acceptance only when valid operator credentials/configuration are provisioned.
+The official non-interactive Termux/Android startup launcher is:
 
-Do not use a second launcher or manually-maintained PID state as a replacement for Hub lifecycle authority.
-
-## 3. Canonical Relay launcher
-
-YasinRelay's canonical Termux launcher is:
-
-```text
-.venv/bin/yasinrelay-termux run --schedule --non-interactive
+```bash
+cd ~/YasinEco/YasinHub
+export YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"
+export PYTHONPATH=.
+.venv/bin/python -m yasinhub.startup
 ```
 
-The launcher must be executed with `shell=False` semantics and its process identity must be verified by the Control Plane before a start operation is reported successful.
+### 2.1 Sync + Start — standard operator command
 
-### 3.1 Canonical operator configuration path
-
-The canonical Relay CLI uses `configure_interactively()` for a normal interactive `run` when no explicit channel override is supplied. This path is implemented in `yasinrelay/cli.py` and `yasinrelay/config.py`.
-
-The important distinction is:
-
-- **Interactive configuration:** run the normal interactive Relay `run` path from a real TTY; it invokes `configure_interactively()` and persists the entered runtime settings to the local `.env`.
-- **Service/control-plane execution:** use the stored `.env` with `run --schedule --non-interactive`; do not depend on interactive prompts when YasinHub launches the service.
-- **Lifecycle authority:** even though the Relay launcher is canonical, lifecycle start/stop/restart for acceptance must be requested through YasinHub, not by manually launching Relay from a second terminal.
-
-The interactive configuration currently prompts for these settings, in this order:
-
-1. `EITAA_TOKEN` — required secret.
-2. `EITAA_CHANNEL` — required destination channel.
-3. `SOURCE_CHANNELS` — required comma-separated source channels.
-4. `AI_PROVIDER` — defaults to `yasinai`.
-5. `AI_API_KEY` — optional secret; falls back to `OPENAI_API_KEY` when unset.
-6. `AI_MODEL` — defaults to `gpt-4o-mini`.
-7. `AI_BASE_URL` — defaults to `https://api.openai.com/v1`.
-8. `FETCH_INTERVAL_SECONDS` — defaults to `3600`.
-9. `INTER_MESSAGE_DELAY_SECONDS` — defaults to `15`.
-10. `DATABASE_PATH` — defaults to `relay.db`.
-11. `LOG_LEVEL` — defaults to `INFO`.
-12. `EVENT_BUS_ENABLED` — defaults to `true`.
-13. `EVENT_LOGGING_ENABLED` — defaults to `true`.
-
-Pressing Enter keeps the previous value when one is already present. The configuration writer sets the `.env` permission to `0600` where supported.
-
-**Secret-handling rule:** this runbook records variable names and safe defaults only. Never paste or record actual token/API-key values in chat, GitHub issues, commits, reports, or this runbook.
-
-## 4. Required operator configuration
-
-The following values may be required for a real publish run:
-
-- `SOURCE_CHANNELS`
-- `EITAA_TOKEN`
-- `EITAA_CHANNEL`
-- `AI_API_KEY`
-- `AI_PROVIDER=yasinai`
-- `OPENAI_API_KEY` (only where the configured provider requires it)
-
-Credentials are operator-provided runtime configuration. Never invent, echo, commit, or include secret values in reports, logs, issues, or documentation.
-
-Recommended local permission:
-
-```text
-.env = 0600
-```
-
-The `.env` file must remain excluded from Git.
-
-## 5. Truthful startup behavior
-
-A successful start means more than a process object being created. YasinHub must verify that the expected process remains alive and corresponds to the intended service identity.
-
-For an invalid/empty publish configuration, truthful behavior is failure, not a fake RUNNING state. Expected signals include:
-
-- `success=false`
-- no authoritative PID retained after failed startup
-- `process_running=false`
-- health state `FAILED` or equivalent truthful failure state
-
-A short-lived Relay process must not leave a stale or zombie PID represented as RUNNING.
-
-## 6. Lifecycle acceptance
-
-For a real service lifecycle, verify:
-
-### Start
-- Hub returns success only after process verification.
-- Returned PID is a real OS PID.
-- PID belongs to the expected process identity.
-
-### Stop
-- Hub requests termination.
-- The process is confirmed dead.
-- The old PID is not reported as running.
-
-### Restart
-- The previous process is dead.
-- A new process is started and verified.
-- The new PID is different when the OS allocates a different process identity.
-
-### Recovery
-- Failed startup removes stale PID state.
-- Process disappearance is reflected truthfully in Hub state.
-- PID checks use OS-level process verification rather than dashboard-only state.
-
-## 7. PWA operation
-
-The PWA is an operational interface to YasinHub. Start/stop/restart controls must rely on the authoritative Hub response and must not optimistically display success when the backend reports failure.
-
-For final visual acceptance, use a real browser on the target mobile viewport. Static source inspection or an HTTP 200 response is not sufficient to claim visual acceptance.
-
-The current mobile UI contract is:
-
-- no hamburger/menu-toggle button;
-- no mobile drawer/sidebar;
-- no mobile navigation entries (`نمای کلی`, `اجراها`, `ناوها`, `رویدادها`);
-- dashboard content uses the full mobile width;
-- desktop sidebar/navigation remains available on desktop viewports.
-
-The accepted implementation is in YasinHub PR #178, merged to `main` as commit `7c9d40b3a8058648aab99b706f073adc16d2e18a`.
-
-## 8. Health and diagnostics
-
-Use Hub health/readiness and service-status endpoints to verify:
-
-- Hub is reachable.
-- Service state reflects the real process.
-- PID information is consistent with process liveness.
-- Failure states are explicit and truthful.
-- No secret material appears in diagnostics.
-
-## 9. Real publish acceptance
-
-Real publishing is an operator-gated test. Before running it, provision valid runtime configuration locally and keep all credentials out of Git.
-
-Acceptance requires evidence of the actual chain:
-
-```text
-Hub command
-  → real Relay process
-  → configured source/feed processing
-  → AI capability path
-  → publish operation
-  → truthful resulting status
-```
-
-### 9.1 Verified real-publish result — 2026-09-06
-
-The Real Publish Acceptance audit was subsequently executed on Android 11 / Termux / ARM64 / Python 3.14.6. The persisted Operations evidence records:
-
-- real source processing from `@bbcpersian`;
-- real Eitaa publishing through `EitaaPublisher`;
-- destination configured as `@yasinrelay`;
-- successful Eitaa response with `success=True` and `message_id=169818801`;
-- Relay test suite: 108 passed;
-- Hub test suite: 478 passed;
-- no credential or secret values recorded in the evidence.
-
-This establishes **REAL PUBLISH ACCEPTANCE: PASS** for the publish gate. The evidence is persisted in `Yasin-Operations` at `reports/active/real-publish-acceptance.md`.
-
-The publish gate must not be rerun merely to reproduce this evidence unless a new regression, configuration change, or release requires it.
-
-If required configuration is absent in a future run, record that run as **OPERATOR-BLOCKED**, not PASS.
-
-## 10. Security rules
-
-- No `shell=True` for lifecycle commands.
-- Parse command arguments safely.
-- Verify process identity before declaring success.
-- Use OS-level liveness checks where required.
-- Never print tokens/API keys.
-- Never commit `.env` or credentials.
-- Fail closed on missing/invalid authorization/configuration.
-- Keep YasinHub as the single lifecycle/PID authority.
-
-## 11. Current verified acceptance baseline
-
-The final Issue #174 software/device regression established the following baseline:
-
-- YasinHub: 478 tests passed.
-- Yasin-Agent: 240 tests passed.
-- YasinRelay: 108 tests passed.
-- Yasin-AI: 415 tests passed on the Termux environment using the compatible installed crypto stack.
-- Real PID lifecycle machinery was verified, including start/stop/restart and short-lived-process/zombie prevention.
-- PWA backend/API control-path checks passed.
-- Security checks passed.
-- Real publish gate subsequently passed with a verified Eitaa receipt (`message_id=169818801`).
-
-These results distinguish software/runtime acceptance from the separate PWA visual acceptance gate.
-
-## 12. Remaining acceptance gates
-
-The real-publish gate is now **PASS** based on the persisted Eitaa receipt evidence. One acceptance gate remains:
-
-1. **PWA visual acceptance:** requires execution in a real browser/mobile viewport and visual verification of the acceptance checklist.
-
-PWA visual polish is intentionally deferred to the later Claude/UI pass. Do not alter the accepted backend/control-plane contract merely for visual work.
-
-Once visual acceptance is executed, update the Issue #174 final/handoff evidence and the Operations index. Do not restart completed lifecycle or publish phases without a new reason.
-
-## 13. Evidence rule
-
-Every operational claim must be backed by command output, test output, API response, process/PID evidence, or browser evidence. A static source inspection can establish implementation intent but cannot substitute for runtime or visual acceptance where runtime/visual proof is required.
-
-## 14. Current continuation checkpoint
-
-The current continuation path is:
-
-```text
-YasinRelay interactive configuration verified
-        ↓
-local .env verified (no secrets recorded)
-        ↓
-YasinHub control path
-        ↓
-Start → real PID/process identity verification
-        ↓
-real publish acceptance — PASS
-        ↓
-Stop / Restart → PID lifecycle verification (already accepted)
-        ↓
-PWA browser visual acceptance — REMAINING
-        ↓
-final regression / Issue #174 closure evidence
-```
-
-The discovery of `configure_interactively()` is recorded here so the next operator/session does not need to rediscover the configuration path. Do not treat source inspection itself as runtime acceptance; runtime claims still require runtime evidence.
-
-## 15. Hub startup and execution commands
-
-The canonical local ecosystem root is:
-
-```text
-~/YasinEco
-```
-
-The canonical YasinHub PWA server is started by importing `yasinhub.api.server.run`; there is no `serve` subcommand in the Hub CLI.
-
-### 15.1 Complete YasinHub execution sequence
-
-Use this sequence from a Termux session. The startup procedure is **restart-safe** for the dedicated Hub port `7000`.
+When starting from an existing checkout, use:
 
 ```bash
 cd ~/YasinEco/YasinHub
@@ -276,129 +44,68 @@ git clean -fd
 export YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"
 export PYTHONPATH=.
 
-printf '\n=== HUB COMMIT ===\n'
-git rev-parse --short HEAD
-
-printf '\n=== HUB STATUS ===\n'
-python -m yasinhub.cli status
-
-printf '\n=== HUB PORT CHECK ===\n'
-HUB_PORT=7000
-PORT_PID="$(python - "$HUB_PORT" <<'PY'
-import socket
-import subprocess
-import sys
-
-port = int(sys.argv[1])
-probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-try:
-    probe.settimeout(0.5)
-    occupied = probe.connect_ex(("127.0.0.1", port)) == 0
-finally:
-    probe.close()
-
-if not occupied:
-    print("")
-    raise SystemExit(0)
-
-pid = ""
-for cmd in (("lsof", "-t", f"-iTCP:{port}", "-sTCP:LISTEN"),
-            ("fuser", f"{port}/tcp")):
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=2)
-    except (FileNotFoundError, subprocess.SubprocessError):
-        continue
-    if result.returncode == 0:
-        for token in result.stdout.split():
-            if token.isdigit():
-                pid = token
-                break
-    if pid:
-        break
-
-print(pid)
-PY
-)"
-
-if [ -z "$PORT_PID" ]; then
-    if python - "$HUB_PORT" <<'PY'
-import socket, sys
-s = socket.socket(); s.settimeout(0.5)
-try:
-    busy = s.connect_ex(("127.0.0.1", int(sys.argv[1]))) == 0
-finally:
-    s.close()
-raise SystemExit(0 if not busy else 1)
-PY
-    then
-        printf 'PORT 7000: FREE\n'
-    else
-        printf 'PORT 7000: OCCUPIED (owner PID could not be resolved)\n'
-        printf 'FAIL CLOSED: no process was killed.\n'
-        exit 1
-    fi
-else
-    printf 'PORT 7000: OCCUPIED BY PID %s\n' "$PORT_PID"
-    CMDLINE="$(tr '\0' ' ' < "/proc/$PORT_PID/cmdline" 2>/dev/null || true)"
-    printf 'OWNER: %s\n' "${CMDLINE:-<unavailable>}"
-
-    case "$CMDLINE" in
-        *"YasinHub"*|*"yasinhub.api.server"*|*"yasinhub"*)
-            printf 'OWNER IDENTITY: YasinHub\n'
-            printf 'ACTION: stopping existing Hub before restart...\n'
-            kill "$PORT_PID" 2>/dev/null || true
-            for _ in $(seq 1 30); do
-                if ! kill -0 "$PORT_PID" 2>/dev/null; then
-                    break
-                fi
-                sleep 0.2
-done
-            if kill -0 "$PORT_PID" 2>/dev/null; then
-                printf 'FAIL: YasinHub PID %s did not stop gracefully.\n' "$PORT_PID"
-                exit 1
-            fi
-            printf 'OLD HUB STOPPED: PID %s\n' "$PORT_PID"
-            ;;
-        *)
-            printf 'OWNER IDENTITY: NOT VERIFIED AS YasinHub\n'
-            printf 'ACTION: no kill performed.\n'
-            printf 'FAIL CLOSED: port 7000 is occupied by another/unverified process.\n'
-            exit 1
-            ;;
-    esac
-fi
-
-printf '\n=== START HUB HTTP/PWA SERVER ===\n'
-python -c 'from yasinhub.api.server import run; run()'
+.venv/bin/python -m yasinhub.startup
 ```
 
-The port check is intentionally performed immediately before starting the server. If `7000` is occupied, the procedure obtains the owner PID and command identity. A verified YasinHub process is stopped gracefully so the new Hub can start cleanly. If the owner is not verified as YasinHub, the procedure **does not kill it** and reports a fail-closed condition for operator inspection.
+`git clean -fd` removes untracked files. Do not use it when local untracked runtime data must be preserved.
 
-The final command is a foreground server and intentionally remains running. Keep that Termux session open while using the PWA.
+### 2.2 Self-healing port behavior
 
-After the server is running, open:
+YasinHub owns port `7000`. The startup launcher performs the port preflight itself:
+
+1. If `7000` is free, start YasinHub.
+2. If `7000` is occupied by a verified YasinHub process, gracefully stop the old Hub, wait for process death and port release, then start the new Hub.
+3. If the owner is foreign, unknown, or cannot be verified as YasinHub, fail closed and **never kill it**.
+4. Normal recovery uses graceful termination; blind `kill -9` is not the normal path.
+5. After start, the launcher verifies the real runtime state required by the startup contract: process/PID identity, listening port and health.
+6. The launcher is non-interactive and designed for Termux/Android ARM64.
+
+## 3. Important Termux behavior
+
+A successful launcher may return to the shell after starting YasinHub. The line:
+
+```text
+YasinHub startup ok: action=started pid=<PID> port=7000
+```
+
+means the startup action succeeded; it does **not** mean the Hub stopped. The Hub may continue serving in the background.
+
+The authoritative runtime check is:
+
+```bash
+curl -sS http://127.0.0.1:7000/api/health
+```
+
+Expected:
+
+```json
+{
+  "service": "YasinHub",
+  "status": "ok"
+}
+```
+
+On the verified Termux run on 2026-09-10, the launcher reported `action=started`, port `7000` was occupied afterward, and `/api/health` returned HTTP 200 with `service=YasinHub` and `status=ok`.
+
+## 4. PWA
+
+After Hub is healthy, open:
 
 ```text
 http://127.0.0.1:7000/dashboard/
 ```
 
-Verify the version/build endpoint:
+Version/build check:
 
 ```bash
 curl -sS http://127.0.0.1:7000/api/version
 ```
 
-Expected shape:
+Do not treat a stale browser cache as current merely because the HTTP server is current; refresh/reopen the PWA after frontend/service-worker changes.
 
-```json
-{"service":"YasinHub","pwa_version":"1.0.0","build":"<current-git-build>"}
-```
+## 5. Service lifecycle
 
-The build value must match the current deployed Hub revision. Do not claim a stale browser cache is current merely because the HTTP server is current; refresh/reopen the PWA when Service Worker assets have changed.
-
-### 15.2 Canonical service lifecycle commands
-
-Do not manually launch Relay as a second lifecycle authority. Use YasinHub:
+Start/stop/restart services through YasinHub only:
 
 ```bash
 cd ~/YasinEco/YasinHub
@@ -410,115 +117,84 @@ python -m yasinhub.cli start yasinrelay
 python -m yasinhub.cli status
 ```
 
-For lifecycle acceptance, use the Hub responses plus OS-level process/PID evidence. The CLI success line alone is not sufficient.
+For lifecycle acceptance, CLI output alone is insufficient. Verify real process identity, PID liveness and the appropriate health/port contract.
 
-### 15.3 Important server rule
+## 6. Port assignments
 
-YasinHub's dedicated HTTP port is `7000`.
+| Service | Port |
+|---|---:|
+| YasinHub | 7000 |
+| Yasin-Agent | 7002 |
+| YasinFeed | 7004 |
+| YasinRelay | portless unless a proven HTTP runtime exists |
+| Yasin-AI | portless unless a proven HTTP runtime exists |
+| YasinPress | portless unless a proven HTTP runtime exists |
+| Yasin-Coder | portless unless a proven HTTP runtime exists |
 
-Before starting the HTTP server, the startup procedure must check whether `7000` is occupied. If it is occupied:
+## 7. Canonical Relay launcher
 
-1. obtain the owner PID immediately;
-2. inspect the process identity;
-3. if it is verified as YasinHub, stop it gracefully and wait for port release;
-4. start the new Hub instance;
-5. if it is not verified as YasinHub, do not kill it; report the PID/owner information and fail closed for operator inspection.
-
-This rule exists because repeated Hub restarts commonly encounter a previous Hub instance still holding the dedicated port. It is valid to replace a previous verified Hub instance during an intentional new startup, but never valid to kill an unverified process merely because it occupies `7000`.
-
-Port assignment is stable, not dynamically allocated: `7000` is reserved for YasinHub, `7002` for Yasin-Agent, and `7004` for YasinFeed. YasinRelay, Yasin-AI, YasinPress, and Yasin-Coder are portless unless a proven HTTP runtime is established.
-
-### 15.4 Current mobile PWA execution result
-
-The versioned PWA was verified at build `cc744e1` with `PWA v1.0.0`, then the mobile navigation contract was changed in PR #178 and merged as `7c9d40b`. The expected current mobile result is:
+For service/control-plane execution, the canonical Relay launcher is:
 
 ```text
-No ☰ button
-No drawer/sidebar
-No mobile nav entries
-Full-width dashboard content
-Desktop sidebar preserved
+.venv/bin/yasinrelay-termux run --schedule --non-interactive
 ```
 
-This browser-visible behavior must be checked after syncing `origin/main` and refreshing/reopening the PWA.
+The normal interactive configuration path is separate: `run` from a real TTY can invoke `configure_interactively()` and persist runtime settings to the local `.env`. Once configured, YasinHub remains the lifecycle authority.
 
-## 16. Operations evidence and document authority
+Never record actual `EITAA_TOKEN`, `AI_API_KEY`, `OPENAI_API_KEY`, or other secret values in documentation, issues, commits, logs or reports.
 
-The canonical operational evidence for the real-publish gate is maintained in `yusi20006-max/Yasin-Operations`. YASIN-DOCS does not duplicate secret-bearing runtime state; it records the acceptance result, evidence location, operational procedure, and remaining gate.
+## 8. Truthful startup and lifecycle rules
 
-Current authoritative evidence location:
+A service is RUNNING only after the expected process survives startup and its identity is verified.
+
+- Failed/invalid startup must not retain a stale PID.
+- Short-lived processes must not be represented as RUNNING.
+- Stop must confirm the old process is dead.
+- Restart must confirm the old process is dead before accepting a new verified process.
+- Unknown port owners must cause fail-closed behavior.
+- `shell=False` is required for lifecycle command execution.
+
+## 9. Health and evidence
+
+Every operational claim must have evidence from command output, tests, API response, process/PID evidence, or browser evidence. Static source inspection alone cannot establish runtime acceptance.
+
+Quick Hub verification:
+
+```bash
+curl -sS -i http://127.0.0.1:7000/api/health
+```
+
+## 10. Security
+
+- Never kill an unverified process occupying a reserved port.
+- Never use blind `kill -9` as the normal startup recovery path.
+- Never print or commit credentials.
+- Keep `.env` local and preferably `0600`.
+- Keep YasinHub as the single lifecycle/PID authority.
+- Fail closed when process identity, authorization or required configuration cannot be verified.
+
+## 11. Termux-first rule
+
+Termux/Android ARM64 is a first-class Yasin runtime target. Runtime compatibility, native dependencies, service entrypoints, process lifecycle and health must be verified on the target environment rather than inferred from package metadata.
+
+## 12. Acceptance baseline
+
+Completed acceptance evidence includes real lifecycle verification, YasinHub/PWA backend control-path verification, Termux runtime installation and real publish acceptance. The PWA visual gate remains a separate browser/mobile evidence requirement unless a later evidence record closes it.
+
+## 13. Operations evidence
+
+Canonical real-publish evidence:
 
 ```text
 Yasin-Operations/reports/active/real-publish-acceptance.md
 ```
 
-The runbook itself is canonical in YASIN-DOCS:
+Canonical runbook:
 
 ```text
 YASIN-DOCS/docs/STARTUP_RUNBOOK.md
 ```
 
-This explicit registration is intentional: future operators and coding agents should start from YASIN-DOCS, then consult the Operations evidence rather than relying on chat history.
+## 14. Fresh Termux installation note
 
-## 17. Fresh Termux installation — new device
-
-Use this procedure for a new Android/Termux device with no existing Yasin checkout. This is an installation procedure only; it does **not** establish runtime, lifecycle, publish, or PWA visual acceptance.
-
-### 17.1 Install prerequisites and clone the canonical repositories
-
-```bash
-pkg update -y && pkg upgrade -y
-pkg install -y git python nodejs
-
-mkdir -p ~/YasinEco
-cd ~/YasinEco
-
-git clone https://github.com/yusi20006-max/YASIN-DOCS.git
-git clone https://github.com/yusi20006-max/Yasin-AI.git
-git clone https://github.com/yusi20006-max/Yasin-MCP.git
-git clone https://github.com/yusi20006-max/Yasin-Operations.git
-git clone https://github.com/yusi20006-max/Yasin-agent.git
-git clone https://github.com/yusi20006-max/Yasin-cli.git
-git clone https://github.com/yusi20006-max/Yasin-core.git
-git clone https://github.com/yusi20006-max/YasinHub.git
-git clone https://github.com/yusi20006-max/YasinPress-Rewrite-.git
-git clone https://github.com/yusi20006-max/YasinRelay.git
-git clone https://github.com/yusi20006-max/Yasinfeed.git
-```
-
-### 17.2 Prepare the verified YasinHub Python environment
-
-```bash
-export YASIN_ECOSYSTEM_ROOT="$HOME/YasinEco"
-
-cd "$YASIN_ECOSYSTEM_ROOT/YasinHub"
-
-python -m venv .venv
-source .venv/bin/activate
-
-python -m pip install --upgrade pip
-pip install -e .
-
-export PYTHONPATH=.
-```
-
-### 17.3 Verify installation
-
-```bash
-printf '\n=== INSTALLATION COMPLETE ===\n'
-printf 'YASIN_ECOSYSTEM_ROOT=%s\n' "$YASIN_ECOSYSTEM_ROOT"
-printf 'HUB=%s\n' "$(git rev-parse --short HEAD)"
-
-printf '\n=== HUB STATUS ===\n'
-python -m yasinhub.cli status
-```
-
-A successful installation/status check does not mean the Relay is configured or that real publishing works. Provision operator configuration separately and securely before any runtime/publish acceptance.
-
-### 17.4 Installation safety rules
-
-- Do not paste or print `EITAA_TOKEN`, `AI_API_KEY`, `OPENAI_API_KEY`, or any other credential into this procedure.
-- Do not copy secrets into Git repositories.
-- Keep runtime `.env` local and protected; recommended permission is `0600`.
-- Do not claim service RUNNING, real publish PASS, or PWA visual PASS solely because cloning/install/status succeeded.
-- Do not invent dependency requirements for repositories whose runtime installation requirements have not been verified.
+Fresh-device installation is separate from runtime acceptance. After repositories and virtual environments are installed, use the canonical YasinHub startup command in Section 2. Do not claim lifecycle, publish or PWA visual acceptance from installation alone.
