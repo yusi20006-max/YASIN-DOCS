@@ -126,10 +126,19 @@ For lifecycle acceptance, CLI output alone is insufficient. Verify real process 
 | YasinHub | 7000 |
 | Yasin-Agent | 7002 |
 | YasinFeed | 7004 |
+| OpenFeed | 7006 |
 | YasinRelay | portless unless a proven HTTP runtime exists |
 | Yasin-AI | portless unless a proven HTTP runtime exists |
 | YasinPress | portless unless a proven HTTP runtime exists |
 | Yasin-Coder | portless unless a proven HTTP runtime exists |
+
+OpenFeed is an independent repository/runtime and is **not** a YasinHub or YasinRelay dependency. Its canonical local PWA address is:
+
+```text
+http://127.0.0.1:7006/
+```
+
+The OpenFeed runtime defaults to port `7006` and accepts `OPENFEED_PORT` for an explicitly overridden local port.
 
 ## 7. Canonical Relay launcher
 
