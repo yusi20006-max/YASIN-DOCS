@@ -263,7 +263,7 @@ The canonical YasinHub PWA server is started by importing `yasinhub.api.server.r
 
 ### 15.1 Complete YasinHub execution sequence
 
-Use this sequence from a Termux session:
+Use this sequence from a Termux session. The startup procedure is **restart-safe** for the dedicated Hub port `7000`.
 
 ```bash
 cd ~/YasinEco/YasinHub
@@ -282,22 +282,110 @@ git rev-parse --short HEAD
 printf '\n=== HUB STATUS ===\n'
 python -m yasinhub.cli status
 
+printf '\n=== HUB PORT CHECK ===\n'
+HUB_PORT=7000
+PORT_PID="$(python - "$HUB_PORT" <<'PY'
+import socket
+import subprocess
+import sys
+
+port = int(sys.argv[1])
+probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    probe.settimeout(0.5)
+    occupied = probe.connect_ex(("127.0.0.1", port)) == 0
+finally:
+    probe.close()
+
+if not occupied:
+    print("")
+    raise SystemExit(0)
+
+pid = ""
+for cmd in (("lsof", "-t", f"-iTCP:{port}", "-sTCP:LISTEN"),
+            ("fuser", f"{port}/tcp")):
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=2)
+    except (FileNotFoundError, subprocess.SubprocessError):
+        continue
+    if result.returncode == 0:
+        for token in result.stdout.split():
+            if token.isdigit():
+                pid = token
+                break
+    if pid:
+        break
+
+print(pid)
+PY
+)"
+
+if [ -z "$PORT_PID" ]; then
+    if python - "$HUB_PORT" <<'PY'
+import socket, sys
+s = socket.socket(); s.settimeout(0.5)
+try:
+    busy = s.connect_ex(("127.0.0.1", int(sys.argv[1]))) == 0
+finally:
+    s.close()
+raise SystemExit(0 if not busy else 1)
+PY
+    then
+        printf 'PORT 7000: FREE\n'
+    else
+        printf 'PORT 7000: OCCUPIED (owner PID could not be resolved)\n'
+        printf 'FAIL CLOSED: no process was killed.\n'
+        exit 1
+    fi
+else
+    printf 'PORT 7000: OCCUPIED BY PID %s\n' "$PORT_PID"
+    CMDLINE="$(tr '\0' ' ' < "/proc/$PORT_PID/cmdline" 2>/dev/null || true)"
+    printf 'OWNER: %s\n' "${CMDLINE:-<unavailable>}"
+
+    case "$CMDLINE" in
+        *"YasinHub"*|*"yasinhub.api.server"*|*"yasinhub"*)
+            printf 'OWNER IDENTITY: YasinHub\n'
+            printf 'ACTION: stopping existing Hub before restart...\n'
+            kill "$PORT_PID" 2>/dev/null || true
+            for _ in $(seq 1 30); do
+                if ! kill -0 "$PORT_PID" 2>/dev/null; then
+                    break
+                fi
+                sleep 0.2
+done
+            if kill -0 "$PORT_PID" 2>/dev/null; then
+                printf 'FAIL: YasinHub PID %s did not stop gracefully.\n' "$PORT_PID"
+                exit 1
+            fi
+            printf 'OLD HUB STOPPED: PID %s\n' "$PORT_PID"
+            ;;
+        *)
+            printf 'OWNER IDENTITY: NOT VERIFIED AS YasinHub\n'
+            printf 'ACTION: no kill performed.\n'
+            printf 'FAIL CLOSED: port 7000 is occupied by another/unverified process.\n'
+            exit 1
+            ;;
+    esac
+fi
+
 printf '\n=== START HUB HTTP/PWA SERVER ===\n'
 python -c 'from yasinhub.api.server import run; run()'
 ```
+
+The port check is intentionally performed immediately before starting the server. If `7000` is occupied, the procedure obtains the owner PID and command identity. A verified YasinHub process is stopped gracefully so the new Hub can start cleanly. If the owner is not verified as YasinHub, the procedure **does not kill it** and reports a fail-closed condition for operator inspection.
 
 The final command is a foreground server and intentionally remains running. Keep that Termux session open while using the PWA.
 
 After the server is running, open:
 
 ```text
-http://127.0.0.1:8000/dashboard/
+http://127.0.0.1:7000/dashboard/
 ```
 
 Verify the version/build endpoint:
 
 ```bash
-curl -sS http://127.0.0.1:8000/api/version
+curl -sS http://127.0.0.1:7000/api/version
 ```
 
 Expected shape:
@@ -326,7 +414,19 @@ For lifecycle acceptance, use the Hub responses plus OS-level process/PID eviden
 
 ### 15.3 Important server rule
 
-Before starting the HTTP server, make sure another Hub server is not already bound to port `8000`. If port `8000` is already in use, do not start a second server; inspect/use the existing Hub server instead.
+YasinHub's dedicated HTTP port is `7000`.
+
+Before starting the HTTP server, the startup procedure must check whether `7000` is occupied. If it is occupied:
+
+1. obtain the owner PID immediately;
+2. inspect the process identity;
+3. if it is verified as YasinHub, stop it gracefully and wait for port release;
+4. start the new Hub instance;
+5. if it is not verified as YasinHub, do not kill it; report the PID/owner information and fail closed for operator inspection.
+
+This rule exists because repeated Hub restarts commonly encounter a previous Hub instance still holding the dedicated port. It is valid to replace a previous verified Hub instance during an intentional new startup, but never valid to kill an unverified process merely because it occupies `7000`.
+
+Port assignment is stable, not dynamically allocated: `7000` is reserved for YasinHub, `7002` for Yasin-Agent, and `7004` for YasinFeed. YasinRelay, Yasin-AI, YasinPress, and Yasin-Coder are portless unless a proven HTTP runtime is established.
 
 ### 15.4 Current mobile PWA execution result
 
