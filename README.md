@@ -12,6 +12,7 @@ YASIN-DOCS is the canonical documentation and architecture repository for the Ya
 4. [Yasin Ecosystem Startup Runbook](docs/STARTUP_RUNBOOK.md)
 5. [Termux Canonical Project Layout](docs/operations/TERMUX_CANONICAL_PROJECT_LAYOUT.md)
 6. [Real Publish Acceptance Record — 2026-09-06](docs/operations/REAL_PUBLISH_ACCEPTANCE_2026-09-06.md)
+7. [Ecosystem Completion Status — 2026-09-13](docs/operations/ECOSYSTEM_COMPLETION_STATUS_2026-09-13.md)
 
 ## Canonical startup rule
 
@@ -118,3 +119,5 @@ All active Yasin runtime repositories use the canonical ecosystem root `~/YasinE
 ## Status
 
 Operational startup is standardized around the YasinHub self-healing launcher on dedicated port `7000`. Real publish acceptance is recorded separately; PWA visual acceptance remains a distinct evidence gate.
+
+The current certified project completion state is recorded in `docs/operations/ECOSYSTEM_COMPLETION_STATUS_2026-09-13.md`. Completed projects are maintenance-only unless a deliberate expansion/new capability or a genuine bug, security, compatibility, or performance issue requires work.
