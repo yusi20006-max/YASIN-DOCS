@@ -108,6 +108,22 @@ Speculative refactors and unrelated feature work should not reopen completed sco
 - Termux `cryptography` / `PyLong_Type` dynamic-linking issue resolved through runtime self-healing preload
 - Current policy: maintenance-only unless deliberate expansion/new capability or a genuine bug/security/compatibility/performance requirement appears
 
+### Yasin-Operations — COMPLETE
+
+- Final audit completed against the standalone repository and operational runbook
+- Main verified at commit `441180b`
+- Existing release `0.1.0` verified; `yasin-operations --version` and `python -m yasin_operations --version` agree
+- 285 tests passed, 4 skipped; 2 local `test_mcp_integration.py` failures were environment-specific on Termux and hosted CI remained green across Python 3.11–3.14
+- `production_acceptance.py`: 10 passed, 0 failed, 1 skipped
+- `release_readiness.py --json`: `success=true`
+- Termux/Android ARM64 runtime checks for doctor/status/health/monitor/restart dry-run completed
+- Safety contract verified: mutating operations require explicit confirmation, dry-run performs no mutation, and foreign/unknown service processes fail closed
+- Operational contract verified as honest: missing service directories are reported as missing/degraded rather than fabricated as healthy
+- YasinHub remains the sole lifecycle Control Plane; Operations acts as an operational adapter/observer and does not create a competing lifecycle authority
+- Final audit found no implementation gap requiring an Issue, PR, or release change
+- No repository files were changed during the certification audit
+- Current policy: maintenance-only unless deliberate expansion/new capability or a genuine bug/security/compatibility/performance requirement appears
+
 ## Current architecture boundary
 
 The completed work preserves the following ecosystem responsibilities:
@@ -150,6 +166,8 @@ Not allowed without a new approved scope:
 ## Remaining ecosystem work
 
 No currently tracked repository remains in the certification queue for the completed scope above.
+
+YasinFeed is intentionally **not** part of the current certification action and remains deferred by operator decision.
 
 The next work item should be a deliberate expansion/new capability or a justified maintenance issue, not a reopening of completed implementation work.
 
