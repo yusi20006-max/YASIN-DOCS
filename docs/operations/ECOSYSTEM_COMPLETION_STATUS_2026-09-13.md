@@ -92,6 +92,22 @@ Speculative refactors and unrelated feature work should not reopen completed sco
 - Project is now explicitly marked `FINAL / COMPLETE` in its README
 - Current policy: Stable Core; maintenance-only unless deliberate expansion/new capability or a genuine bug/security/performance/compatibility need appears
 
+### YasinRelay — COMPLETE
+
+- Issue #51 completed and closed after full Termux canonical Yasin-AI runtime acceptance
+- PR #58 merged to `main`
+- Merge commit `ba841fa`
+- Targeted tests: 38 passed
+- Full test suite: 123 passed
+- CI passed
+- Termux / Android ARM64 / Python 3.14.6 verified
+- Canonical `GenerationRequest` and `GenerationService` verified
+- `YasinAIContentProcessor` verified with no silent legacy fallback
+- Non-interactive scheduled runtime verified
+- Real `install → start → process → stop` verified
+- Termux `cryptography` / `PyLong_Type` dynamic-linking issue resolved through runtime self-healing preload
+- Current policy: maintenance-only unless deliberate expansion/new capability or a genuine bug/security/compatibility/performance requirement appears
+
 ## Current architecture boundary
 
 The completed work preserves the following ecosystem responsibilities:
@@ -133,7 +149,9 @@ Not allowed without a new approved scope:
 
 ## Remaining ecosystem work
 
-`YasinRelay` remains a separate active certification track and is not included in the completed list above until its remaining Termux canonical Yasin-AI runtime acceptance is genuinely proven.
+No currently tracked repository remains in the certification queue for the completed scope above.
+
+The next work item should be a deliberate expansion/new capability or a justified maintenance issue, not a reopening of completed implementation work.
 
 ## Evidence policy
 
