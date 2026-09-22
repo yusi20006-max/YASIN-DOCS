@@ -24,7 +24,7 @@
 | Feedbridge | Supporting | Telegram bridge with vendored fetcher | Architecture record |
 | TJC | Developer Tooling | Jules workflow/automation CLI | Architecture record |
 | Termux-BackupManager | Operations | Termux backup/restore tooling | Architecture record |
-| YasinCoder | Ecosystem Tooling Candidate | Yasin-named repository; role requires direct source audit | Scope candidate |
+| YasinCoder | Ecosystem Tooling | Canonical coding-agent CLI (`yusi20006-max/YasinCoder`, branch `master`, local path `~/YASIN-REPOS/YasinCoder`); CLI/project workflow, not a Hub/Runit daemon | Audited (Issue yusi20006-max/Yasin-Operations#218) |
 | YasinJules | Ecosystem Tooling Candidate | Yasin-named Jules-related repository; role requires direct source audit | Scope candidate |
 | Telegram-Mirror | Related Candidate | Telegram-related repository; relationship to Yasin applications not yet verified | Scope candidate |
 | YasinPress-Rewrite- | Private | Active rewrite of legacy YasinPress; has real packaging/tests/CI, but CI is currently **failing** on `main` — see `docs/projects/yasinpress-rewrite.md` for the specific failures found (2026-08-12 audit) | Audited, unstable |
