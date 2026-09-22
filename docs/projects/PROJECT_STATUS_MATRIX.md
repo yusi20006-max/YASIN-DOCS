@@ -17,7 +17,7 @@ This matrix is intentionally conservative. `Partial` means the repository and a 
 | FeedBridge | Yes | Yes | Strong | Strong | Partial | Partial |
 | TJC | Yes | Yes | Partial | Partial | Partial | Partial |
 | Termux Backup Manager | Yes | Yes | Partial | Partial | Partial | Partial |
-| YasinCoder | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
+| YasinCoder | Yes | Yes | Strong | Strong | Partial | Strong |
 | YasinJules | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
 | Telegram-Mirror | Yes | Scope candidate | Not audited | Unknown | Unknown | Unknown |
 | YasinPress-Rewrite- | Yes | Yes | Strong | Partial | Not audited | Failing |
